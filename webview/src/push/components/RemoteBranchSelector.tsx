@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { bridge } from "../../shared/bridge";
+import { t } from "../../shared/i18n";
 
 interface RemoteBranchGroup {
   remote: string;
@@ -104,9 +105,13 @@ export function RemoteBranchSelector({
     <div className="remote-branch-selector" ref={containerRef}>
       {/* Remote list */}
       <div className="remote-branch-selector__remotes">
-        <div className="remote-branch-selector__section-label">Remote</div>
+        <div className="remote-branch-selector__section-label">
+          {t("branch.remote")}
+        </div>
         {loading && (
-          <div className="remote-branch-selector__loading">Loading...</div>
+          <div className="remote-branch-selector__loading">
+            {t("common.loading")}
+          </div>
         )}
         {!loading &&
           remotes.map((remote) => (
@@ -127,7 +132,9 @@ export function RemoteBranchSelector({
 
       {/* Branch input */}
       <div className="remote-branch-selector__branch">
-        <div className="remote-branch-selector__section-label">Branch</div>
+        <div className="remote-branch-selector__section-label">
+          {t("common.branch")}
+        </div>
         <input
           ref={inputRef}
           type="text"

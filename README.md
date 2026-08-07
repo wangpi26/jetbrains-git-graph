@@ -8,7 +8,7 @@
 
 The most complete **IntelliJ IDEA / JetBrains Git** experience for **VS Code** and **Cursor**. Includes Git graph visualization, IDEA-style commit panel with shelf and stash, branch management with context menus, cherry-pick, rebase, merge, and 3-way merge editor. Works like WebStorm, PyCharm, GoLand, and Rider's Git tooling.
 
-> Fork of [zhyc9de/jet-git](https://github.com/zhyc9de/jet-git) with full IntelliJ IDEA-style context menus and UI enhancements.
+> Fork of [aotemj/jetbrains-git-graph](https://github.com/aotemj/jetbrains-git-graph), which is a fork of [zhyc9de/jet-git](https://github.com/zhyc9de/jet-git), with full IntelliJ IDEA-style context menus and UI enhancements.
 
 **English** · [简体中文](./README.zh_CN.md)
 
@@ -140,7 +140,8 @@ pnpm run vsce:package   # Package as .vsix
 
 ## Credits
 
-- Original: [zhyc9de/jet-git](https://github.com/zhyc9de/jet-git)
+- Upstream: [zhyc9de/jet-git](https://github.com/zhyc9de/jet-git)
+- Fork: [aotemj/jetbrains-git-graph](https://github.com/aotemj/jetbrains-git-graph)
 - Icons: [IntelliJ IDEA Icons](https://intellij-icons.jetbrains.design/) (Apache 2.0)
 
 ## License

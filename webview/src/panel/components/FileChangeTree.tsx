@@ -3,6 +3,7 @@ import CodiconListFlat from "~icons/codicon/list-flat";
 import CodiconListTree from "~icons/codicon/list-tree";
 import { FileTree } from "../../shared/components/FileTree";
 import { Tooltip } from "../../shared/components/Tooltip";
+import { t } from "../../shared/i18n";
 import "../../shared/components/Tooltip.css";
 import { usePanelStore } from "../../shared/store/panel-store";
 import type { DiffFile } from "../../shared/types/git";
@@ -109,7 +110,7 @@ export function FileChangeTree() {
           Changed Files
         </span>
         <span style={{ display: "flex", gap: 2 }}>
-          <Tooltip text="Tree View">
+          <Tooltip text={t("file.treeView")}>
             <button
               type="button"
               onClick={() => setViewMode("tree")}
@@ -128,7 +129,7 @@ export function FileChangeTree() {
               <CodiconListTree />
             </button>
           </Tooltip>
-          <Tooltip text="Flat List">
+          <Tooltip text={t("file.flatList")}>
             <button
               type="button"
               onClick={() => setViewMode("flat")}

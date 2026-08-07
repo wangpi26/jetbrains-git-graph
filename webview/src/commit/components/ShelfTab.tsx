@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { t } from "../../shared/i18n";
 import {
   type ShelveEntry,
   useCommitStore,
@@ -70,7 +71,7 @@ export function ShelfTab() {
     return (
       <div className="shelf-list">
         <div className="shelf-empty">
-          <p>No shelved changes</p>
+          <p>{t("shelf.noShelvedChanges")}</p>
           <p style={{ fontSize: 11, marginTop: 8 }}>
             Use the shelf icon in the Commit tab toolbar to shelve changes for
             later.

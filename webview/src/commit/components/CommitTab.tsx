@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { bridge } from "../../shared/bridge";
+import { t } from "../../shared/i18n";
 import {
   useCommitStore,
   type WorkingTreeFile,
@@ -228,7 +229,7 @@ export function CommitTab() {
         )}
 
         {changes.length === 0 && (
-          <div className="shelf-empty">No changes detected</div>
+          <div className="shelf-empty">{t("commitTab.noChanges")}</div>
         )}
       </div>
 
@@ -801,7 +802,7 @@ function DirContextMenu({
         onClick={handleRollback}
       >
         <RollbackIcon />
-        <span>Rollback...</span>
+        <span>{t("commitTab.rollback")}</span>
       </button>
 
       <div className="commit-context-menu-separator" />
@@ -812,7 +813,7 @@ function DirContextMenu({
         onClick={handleOpenInSystemFolder}
       >
         <FolderOpenIcon />
-        <span>Open in System Folder</span>
+        <span>{t("commitTab.openInSystemFolder")}</span>
       </button>
 
       <div className="commit-context-menu-separator" />

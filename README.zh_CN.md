@@ -8,7 +8,7 @@
 
 IntelliJ IDEA 风格的 Git 可视化工具：提交图、分支管理、Cherry-Pick、Rebase 和三路合并编辑器。
 
-> 基于 [zhyc9de/jet-git](https://github.com/zhyc9de/jet-git) 的 Fork，新增完整的 IntelliJ IDEA 风格右键菜单和 UI 增强。
+> 基于 [aotemj/jetbrains-git-graph](https://github.com/aotemj/jetbrains-git-graph) 的 Fork，该项目 fork 自 [zhyc9de/jet-git](https://github.com/zhyc9de/jet-git)，新增完整的 IntelliJ IDEA 风格右键菜单和 UI 增强。
 
 [English](./README.md) · **简体中文**
 
@@ -140,7 +140,8 @@ pnpm run vsce:package   # 打包为 .vsix
 
 ## 致谢
 
-- 原项目：[zhyc9de/jet-git](https://github.com/zhyc9de/jet-git)
+- 上游项目：[zhyc9de/jet-git](https://github.com/zhyc9de/jet-git)
+- Fork：[aotemj/jetbrains-git-graph](https://github.com/aotemj/jetbrains-git-graph)
 - 图标：[IntelliJ IDEA Icons](https://intellij-icons.jetbrains.design/)（Apache 2.0 许可）
 
 ## 许可证

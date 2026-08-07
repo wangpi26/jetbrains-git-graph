@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { bridge } from "../../shared/bridge";
 import { Tooltip } from "../../shared/components/Tooltip";
+import { t } from "../../shared/i18n";
 import "../../shared/components/Tooltip.css";
 import { useCommitStore } from "../../shared/store/commit-store";
 
@@ -98,7 +99,7 @@ export function CommitMessageArea() {
     <div className="commit-message-area">
       <textarea
         className="commit-message-textarea"
-        placeholder="Commit message (Ctrl+Enter to commit)"
+        placeholder={t("commitMessage.placeholder")}
         value={commitMessage}
         onChange={(e) => setCommitMessage(e.target.value)}
         onKeyDown={handleKeyDown}
@@ -114,7 +115,7 @@ export function CommitMessageArea() {
           />
           Amend
         </label>
-        <Tooltip text="Recent commit messages">
+        <Tooltip text={t("commitMessage.recentMessages")}>
           <span
             ref={historyBtnRef}
             onClick={handleHistoryClick}

@@ -4,6 +4,7 @@ import { bridge, bridgeWithProgress } from "../../shared/bridge";
 import { Tooltip } from "../../shared/components/Tooltip";
 import { useModifierClickSelection } from "../../shared/hooks/useModifierClickSelection";
 import { usePreventSelect } from "../../shared/hooks/usePreventSelect";
+import { t } from "../../shared/i18n";
 import { usePanelStore } from "../../shared/store/panel-store";
 import type { BranchInfo, TagInfo } from "../../shared/types/git";
 import { BranchSidebar as BranchSidebarComponent } from "./BranchSidebar";
@@ -494,7 +495,7 @@ export function BranchTree({
             </svg>
             <input
               type="text"
-              placeholder="Branch or tag"
+              placeholder={t("branch.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{
@@ -587,7 +588,7 @@ export function BranchTree({
 
         {/* Local */}
         <GroupSection
-          title="Local"
+          title={t("branch.local")}
           collapsed={collapsed.local}
           onToggle={() => toggle("local")}
         >
@@ -611,7 +612,7 @@ export function BranchTree({
 
         {/* Remote */}
         <GroupSection
-          title="Remote"
+          title={t("branch.remote")}
           collapsed={collapsed.remote}
           onToggle={() => toggle("remote")}
         >
@@ -635,7 +636,7 @@ export function BranchTree({
 
         {/* Tags */}
         <GroupSection
-          title="Tags"
+          title={t("branch.tags")}
           collapsed={collapsed.tags}
           onToggle={() => toggle("tags")}
         >
@@ -678,7 +679,7 @@ export function BranchTree({
             <CreateBranchDialog
               title={`Create Branch from '${createBranchDialog.startPoint}'`}
               defaultName={createBranchDialog.defaultName}
-              placeholder="branch-name"
+              placeholder={t("branch.branchNamePlaceholder")}
               onClose={() => setCreateBranchDialog(null)}
               onConfirm={async ({ branchName, checkout, force }) => {
                 try {
@@ -1276,10 +1277,10 @@ function BranchContextMenu({
   }[] = [];
 
   if (!isCurrent) {
-    items.push({ label: "Checkout", action: handleCheckout });
+    items.push({ label: t("branch.checkout"), action: handleCheckout });
   }
   items.push({
-    label: `New Branch from '${branch.name}'...`,
+    label: t("branch.newBranchFrom", { name: branch.name }),
     action: handleNewBranch,
   });
   if (!isCurrent) {
@@ -1304,15 +1305,15 @@ function BranchContextMenu({
   if (!isCurrent) {
     items.push({ label: "", action: () => {}, separator: true });
     if (!branch.isRemote) {
-      items.push({ label: "Rename...", action: handleRename });
+      items.push({ label: t("branch.rename"), action: handleRename });
     }
-    items.push({ label: "Delete", action: handleDelete });
+    items.push({ label: t("branch.delete"), action: handleDelete });
   }
 
   if (!branch.isRemote) {
     items.push({ label: "", action: () => {}, separator: true });
-    items.push({ label: "Update", action: handleUpdate });
-    items.push({ label: "Push...", action: handlePush });
+    items.push({ label: t("branch.update"), action: handleUpdate });
+    items.push({ label: t("branch.push"), action: handlePush });
   }
 
   if (items.length === 0) return null;

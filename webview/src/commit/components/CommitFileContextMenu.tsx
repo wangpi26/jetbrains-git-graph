@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { t } from "../../shared/i18n";
 import type { WorkingTreeFile } from "../../shared/store/commit-store";
 import { useCommitStore } from "../../shared/store/commit-store";
 
@@ -169,7 +170,7 @@ export function CommitFileContextMenu({
         onClick={handleShowDiff}
       >
         <DiffIcon />
-        <span>Show Diff</span>
+        <span>{t("commitFile.showDiff")}</span>
         <span className="commit-context-menu-shortcut">⌘D</span>
       </button>
 
@@ -180,7 +181,7 @@ export function CommitFileContextMenu({
         onClick={handleJumpToSource}
       >
         <JumpIcon />
-        <span>Jump to Source</span>
+        <span>{t("commitFile.jumpToSource")}</span>
       </button>
 
       {/* Open in System Folder */}
@@ -190,7 +191,7 @@ export function CommitFileContextMenu({
         onClick={handleOpenInSystemFolder}
       >
         <FolderOpenIcon />
-        <span>Open in System Folder</span>
+        <span>{t("commitFile.openInSystemFolder")}</span>
       </button>
 
       <div className="commit-context-menu-separator" />
@@ -203,7 +204,7 @@ export function CommitFileContextMenu({
           onClick={handleUnstage}
         >
           <RemoveIcon />
-          <span>Unstage</span>
+          <span>{t("commitFile.unstage")}</span>
         </button>
       ) : (
         <button
@@ -212,7 +213,7 @@ export function CommitFileContextMenu({
           onClick={handleStage}
         >
           <AddIcon />
-          <span>Add to VCS</span>
+          <span>{t("commitFile.addToVcs")}</span>
           <span className="commit-context-menu-shortcut">⌥⌘A</span>
         </button>
       )}
@@ -224,7 +225,7 @@ export function CommitFileContextMenu({
         onClick={handleRollback}
       >
         <RollbackIcon />
-        <span>Rollback...</span>
+        <span>{t("commitFile.rollback")}</span>
         <span className="commit-context-menu-shortcut">⌥⌘Z</span>
       </button>
 
@@ -237,7 +238,7 @@ export function CommitFileContextMenu({
         onClick={handleShelve}
       >
         <ShelveIcon />
-        <span>Shelve Changes...</span>
+        <span>{t("commitFile.shelveChanges")}</span>
       </button>
 
       <div className="commit-context-menu-separator" />
@@ -249,7 +250,7 @@ export function CommitFileContextMenu({
         onClick={handleDelete}
       >
         <DeleteIcon />
-        <span>Delete...</span>
+        <span>{t("commitFile.delete")}</span>
         <span className="commit-context-menu-shortcut">⌫</span>
       </button>
     </div>

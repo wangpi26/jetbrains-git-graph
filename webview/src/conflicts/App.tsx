@@ -11,6 +11,7 @@ import {
   useModifierClickSelection,
 } from "../shared/hooks/useModifierClickSelection";
 import { usePreventSelect } from "../shared/hooks/usePreventSelect";
+import { t } from "../shared/i18n";
 import type { DiffFile } from "../shared/types/git";
 
 interface MergeState {
@@ -235,9 +236,9 @@ export function ConflictsApp() {
               <strong>{branchInfo.into}</strong>
             </>
           ) : mergeState?.isMerging ? (
-            <>Merge in progress</>
+            <>{t("status.mergeInProgress")}</>
           ) : (
-            <>No merge in progress</>
+            <>{t("status.noMergeInProgress")}</>
           )}
         </p>
         {conflictFiles.length > 0 && (
@@ -309,7 +310,7 @@ export function ConflictsApp() {
                 flexShrink: 0,
               }}
             >
-              <span style={{ flex: 1 }}>Name</span>
+              <span style={{ flex: 1 }}>{t("conflicts.name")}</span>
               <span
                 style={{
                   minWidth: 60,

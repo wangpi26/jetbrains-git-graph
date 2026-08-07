@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { getLocale } from "../i18n";
 
 export function getWebviewHtml(
   webview: vscode.Webview,
@@ -15,7 +16,7 @@ export function getWebviewHtml(
   );
   const nonce = getNonce();
 
-  const dataAttrs = [`data-mode="${mode}"`];
+  const dataAttrs = [`data-mode="${mode}"`, `data-locale="${getLocale()}"`];
   if (extra) {
     for (const [key, value] of Object.entries(extra)) {
       dataAttrs.push(`data-${key}="${escapeHtml(value)}"`);

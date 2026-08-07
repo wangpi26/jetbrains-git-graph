@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { bridge } from "../shared/bridge";
 import { Tooltip } from "../shared/components/Tooltip";
+import { t } from "../shared/i18n";
 import "../shared/components/Tooltip.css";
 import { useCommitStore } from "../shared/store/commit-store";
 import { CommitTab } from "./components/CommitTab";
@@ -66,7 +67,9 @@ function RebaseBanner() {
 
   if (!state.isRebasing) return null;
 
-  const label = state.branchName ? `Rebasing ${state.branchName}` : "Rebasing";
+  const label = state.branchName
+    ? t("status.rebasing", { branchName: state.branchName })
+    : t("status.rebasingShort");
   const progress =
     state.step && state.totalSteps
       ? ` (${state.step}/${state.totalSteps})`
@@ -90,7 +93,7 @@ function RebaseBanner() {
         {label}
         {progress}
       </span>
-      <Tooltip text="Continue Rebase (git rebase --continue)">
+      <Tooltip text={t("status.continueRebase")}>
         <div
           role="button"
           tabIndex={0}
@@ -129,7 +132,7 @@ function RebaseBanner() {
           </svg>
         </div>
       </Tooltip>
-      <Tooltip text="Abort Rebase (git rebase --abort)">
+      <Tooltip text={t("status.abortRebase")}>
         <div
           role="button"
           tabIndex={0}
@@ -226,7 +229,9 @@ function CherryPickBanner() {
   const shortHash = state.cherryPickHead
     ? state.cherryPickHead.substring(0, 7)
     : "";
-  const label = shortHash ? `Cherry-picking ${shortHash}` : "Cherry-picking";
+  const label = shortHash
+    ? t("status.cherryPicking", { hash: shortHash })
+    : t("status.cherryPickingShort");
 
   return (
     <div
@@ -246,7 +251,7 @@ function CherryPickBanner() {
       <span style={{ fontWeight: 600, flex: 1, color: "var(--app-fg, #ccc)" }}>
         {label}
       </span>
-      <Tooltip text="Continue Cherry-pick (git cherry-pick --continue)">
+      <Tooltip text={t("status.continueCherryPick")}>
         <div
           role="button"
           tabIndex={0}
@@ -284,7 +289,7 @@ function CherryPickBanner() {
           </svg>
         </div>
       </Tooltip>
-      <Tooltip text="Skip Cherry-pick (git cherry-pick --skip)">
+      <Tooltip text={t("status.skipCherryPick")}>
         <div
           role="button"
           tabIndex={0}
@@ -316,7 +321,7 @@ function CherryPickBanner() {
           </svg>
         </div>
       </Tooltip>
-      <Tooltip text="Abort Cherry-pick (git cherry-pick --abort)">
+      <Tooltip text={t("status.abortCherryPick")}>
         <div
           role="button"
           tabIndex={0}
@@ -411,13 +416,13 @@ function MergeBanner() {
   if (!state.isMerging) return null;
 
   // Parse branch name from merge message like "Merge branch 'feature' into main"
-  let label = "Merging";
+  let label = t("status.merging");
   if (state.mergeMsg) {
     const match = state.mergeMsg.match(
       /Merge (?:branch '([^']+)'|remote-tracking branch '([^']+)')/,
     );
     if (match) {
-      label = `Merging ${match[1] || match[2]}`;
+      label = t("status.mergingBranch", { branch: match[1] || match[2] });
     }
   }
 
@@ -438,7 +443,7 @@ function MergeBanner() {
       <span style={{ fontWeight: 600, flex: 1, color: "var(--app-fg, #ccc)" }}>
         {label}
       </span>
-      <Tooltip text="Resolve Conflicts" position="top">
+      <Tooltip text={t("status.resolveConflicts")} position="top">
         <div
           role="button"
           tabIndex={0}
@@ -476,7 +481,7 @@ function MergeBanner() {
           </svg>
         </div>
       </Tooltip>
-      <Tooltip text="Abort Merge (git merge --abort)" position="top">
+      <Tooltip text={t("status.abortMerge")} position="top">
         <div
           role="button"
           tabIndex={0}

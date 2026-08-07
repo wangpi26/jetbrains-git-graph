@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { bridge } from "../shared/bridge";
 import { Tooltip } from "../shared/components/Tooltip";
+import { t } from "../shared/i18n";
 import "../shared/components/Tooltip.css";
 import { useMergeStore } from "../shared/store/merge-store";
 import { MergeContainer } from "./components/MergeContainer";
@@ -197,7 +198,7 @@ export function MergeStandaloneApp() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <Tooltip text="Previous Conflict">
+          <Tooltip text={t("conflicts.previousConflict")}>
             <button
               type="button"
               onClick={goToPrevConflict}
@@ -207,7 +208,7 @@ export function MergeStandaloneApp() {
               &#x25B2;
             </button>
           </Tooltip>
-          <Tooltip text="Next Conflict">
+          <Tooltip text={t("conflicts.nextConflict")}>
             <button
               type="button"
               onClick={goToNextConflict}
@@ -243,7 +244,7 @@ export function MergeStandaloneApp() {
         }}
       >
         <div style={{ display: "flex", gap: 8 }}>
-          <Tooltip text="Accept all changes from left side" position="top">
+          <Tooltip text={t("conflicts.acceptAllLeft")} position="top">
             <button
               type="button"
               onClick={acceptAllLeft}
@@ -253,7 +254,7 @@ export function MergeStandaloneApp() {
               Accept Left
             </button>
           </Tooltip>
-          <Tooltip text="Accept all changes from right side" position="top">
+          <Tooltip text={t("conflicts.acceptAllRight")} position="top">
             <button
               type="button"
               onClick={acceptAllRight}
@@ -265,7 +266,7 @@ export function MergeStandaloneApp() {
           </Tooltip>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <Tooltip text="Discard changes and close" position="top">
+          <Tooltip text={t("conflicts.discardAndClose")} position="top">
             <button
               type="button"
               onClick={handleCancel}
@@ -274,7 +275,7 @@ export function MergeStandaloneApp() {
               Cancel
             </button>
           </Tooltip>
-          <Tooltip text="Save merged result and stage file" position="top">
+          <Tooltip text={t("conflicts.saveAndStage")} position="top">
             <button
               type="button"
               onClick={handleApply}

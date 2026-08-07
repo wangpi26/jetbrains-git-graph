@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Tooltip } from "../../shared/components/Tooltip";
 import "../../shared/components/Tooltip.css";
+import { t } from "../../shared/i18n";
 import { usePanelStore } from "../../shared/store/panel-store";
 
 export function Toolbar() {
@@ -97,7 +98,7 @@ export function Toolbar() {
       }}
     >
       <SearchInput
-        placeholder="Search commits..."
+        placeholder={t("panel.toolbar.searchCommits")}
         defaultValue={filter.searchQuery}
         onChange={handleSearch}
       />
@@ -119,7 +120,7 @@ export function Toolbar() {
           <SearchableDropdown
             items={branchNames}
             activeItem={filter.branch}
-            placeholder="Select branch..."
+            placeholder={t("panel.toolbar.selectBranch")}
             onSelect={handleSelectBranch}
             onClear={filter.branch ? handleClearBranch : undefined}
             clearLabel="All branches"
@@ -145,7 +146,7 @@ export function Toolbar() {
           <SearchableDropdown
             items={authors}
             activeItem={filter.author}
-            placeholder="Select user..."
+            placeholder={t("panel.toolbar.selectUser")}
             onSelect={handleSelectAuthor}
             onClear={filter.author ? handleClearAuthor : undefined}
             clearLabel="All users"
@@ -173,7 +174,7 @@ export function Toolbar() {
           <SearchableDropdown
             items={["today", "7days", "30days", "90days"]}
             activeItem={filter.dateRange}
-            placeholder="Select date range..."
+            placeholder={t("panel.toolbar.selectDateRange")}
             onSelect={handleSelectDate}
             onClear={filter.dateRange ? handleClearDate : undefined}
             clearLabel="All time"
@@ -186,7 +187,7 @@ export function Toolbar() {
       {/* View Options (eye icon) — pushed to far right */}
       <div style={{ flex: 1 }} />
       <div style={{ position: "relative" }}>
-        <Tooltip text="View Options">
+        <Tooltip text={t("panel.toolbar.viewOptions")}>
           <button
             type="button"
             onClick={() => {
@@ -730,9 +731,9 @@ function ViewOptionsDropdown({
   }, [onClose]);
 
   const columns: { key: "author" | "date" | "hash"; label: string }[] = [
-    { key: "author", label: "Author" },
-    { key: "date", label: "Date" },
-    { key: "hash", label: "Hash" },
+    { key: "author", label: t("panel.toolbar.author") },
+    { key: "date", label: t("panel.toolbar.date") },
+    { key: "hash", label: t("panel.toolbar.hash") },
   ];
 
   return (

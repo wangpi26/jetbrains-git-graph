@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { bridge, bridgeWithProgress } from "../../shared/bridge";
+import { t } from "../../shared/i18n";
 import { usePanelStore } from "../../shared/store/panel-store";
 import type { DiffFile } from "../../shared/types/git";
 
@@ -306,26 +307,34 @@ export function FileContextMenu({ x, y, file, onClose }: FileContextMenuProps) {
     separator?: boolean;
     icon?: React.ReactNode;
   }[] = [
-    { label: "Show Diff", action: handleShowDiff, icon: <IconDiff /> },
-    { label: "", action: () => {}, separator: true },
-    { label: "Edit Source", action: handleEditSource, icon: <IconEdit /> },
-    { label: "Open Repository Version", action: handleOpenRepoVersion },
+    { label: t("file.showDiff"), action: handleShowDiff, icon: <IconDiff /> },
     { label: "", action: () => {}, separator: true },
     {
-      label: "Revert Selected Changes",
+      label: t("file.editSource"),
+      action: handleEditSource,
+      icon: <IconEdit />,
+    },
+    { label: t("file.openRepoVersion"), action: handleOpenRepoVersion },
+    { label: "", action: () => {}, separator: true },
+    {
+      label: t("file.revertSelected"),
       action: handleRevertFileChanges,
       icon: <IconRevert />,
     },
     {
-      label: "Cherry-Pick Selected Changes",
+      label: t("file.cherryPickSelected"),
       action: handleCherryPickFileChanges,
       icon: <IconCherryPick />,
     },
     { label: "", action: () => {}, separator: true },
-    { label: "Copy Path", action: handleCopyPath, icon: <IconCopy /> },
-    { label: "Copy File Name", action: handleCopyFileName, icon: <IconCopy /> },
+    { label: t("file.copyPath"), action: handleCopyPath, icon: <IconCopy /> },
+    {
+      label: t("file.copyFileName"),
+      action: handleCopyFileName,
+      icon: <IconCopy />,
+    },
     { label: "", action: () => {}, separator: true },
-    { label: "History Up to Here", action: handleHistoryUpToHere },
+    { label: t("file.historyUpToHere"), action: handleHistoryUpToHere },
   ];
 
   const menu = (

@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from "react";
 import { bridge } from "../../shared/bridge";
 import { Tooltip } from "../../shared/components/Tooltip";
 import "../../shared/components/Tooltip.css";
+import { t } from "../../shared/i18n";
 import { usePanelStore } from "../../shared/store/panel-store";
 
 export function BranchSidebar({
@@ -76,7 +77,7 @@ export function BranchSidebar({
   return (
     <div className="branch-sidebar">
       {onTogglePanel && (
-        <Tooltip text="Hide Branches">
+        <Tooltip text={t("branch.hideBranches")}>
           <button
             type="button"
             className="branch-sidebar-btn"
@@ -86,7 +87,7 @@ export function BranchSidebar({
           </button>
         </Tooltip>
       )}
-      <Tooltip text="New Branch">
+      <Tooltip text={t("branch.newBranch")}>
         <button
           type="button"
           className="branch-sidebar-btn"
@@ -95,7 +96,7 @@ export function BranchSidebar({
           <IconAdd />
         </button>
       </Tooltip>
-      <Tooltip text="Update Selected">
+      <Tooltip text={t("branch.updateSelected")}>
         <button
           type="button"
           className="branch-sidebar-btn"
@@ -105,7 +106,7 @@ export function BranchSidebar({
           <IconUpdate />
         </button>
       </Tooltip>
-      <Tooltip text="Delete Branch">
+      <Tooltip text={t("branch.deleteBranch")}>
         <button
           type="button"
           className="branch-sidebar-btn"
@@ -115,7 +116,7 @@ export function BranchSidebar({
           <IconDelete />
         </button>
       </Tooltip>
-      <Tooltip text="Compare with Current">
+      <Tooltip text={t("branch.compareWithCurrent")}>
         <button
           type="button"
           className="branch-sidebar-btn"
@@ -125,7 +126,7 @@ export function BranchSidebar({
           <IconCompare />
         </button>
       </Tooltip>
-      <Tooltip text="Show My Branches">
+      <Tooltip text={t("branch.showMyBranches")}>
         <button
           type="button"
           className="branch-sidebar-btn"
@@ -134,7 +135,7 @@ export function BranchSidebar({
           <IconSearch />
         </button>
       </Tooltip>
-      <Tooltip text="Fetch">
+      <Tooltip text={t("branch.fetch")}>
         <button
           type="button"
           className="branch-sidebar-btn"
@@ -143,7 +144,7 @@ export function BranchSidebar({
           <IconFetch />
         </button>
       </Tooltip>
-      <Tooltip text="Mark/Unmark As Favorite">
+      <Tooltip text={t("branch.toggleFavorite")}>
         <button
           type="button"
           className="branch-sidebar-btn"
@@ -153,7 +154,7 @@ export function BranchSidebar({
           <IconStar />
         </button>
       </Tooltip>
-      <Tooltip text="Navigate Log to Selected Branch Head">
+      <Tooltip text={t("branch.navigateToHead")}>
         <button
           type="button"
           className="branch-sidebar-btn"
@@ -178,7 +179,7 @@ export function BranchSidebar({
 
       <div className="branch-sidebar-spacer" />
 
-      <Tooltip text="Expand All">
+      <Tooltip text={t("branch.expandAll")}>
         <button
           type="button"
           className="branch-sidebar-btn"
@@ -187,7 +188,7 @@ export function BranchSidebar({
           <IconExpandAll />
         </button>
       </Tooltip>
-      <Tooltip text="Collapse All">
+      <Tooltip text={t("branch.collapseAll")}>
         <button
           type="button"
           className="branch-sidebar-btn"
@@ -208,7 +209,7 @@ function SettingsButton() {
 
   return (
     <>
-      <Tooltip text="Settings">
+      <Tooltip text={t("branch.settings")}>
         <button
           type="button"
           className="branch-sidebar-btn"
@@ -254,7 +255,9 @@ function SettingsMenu({ onClose }: { onClose: () => void }) {
         zIndex: 1000,
       }}
     >
-      <div className="commit-context-menu-header">On Single Click</div>
+      <div className="commit-context-menu-header">
+        {t("branch.onSingleClick")}
+      </div>
       <button
         type="button"
         className="commit-context-menu-item"
@@ -265,7 +268,7 @@ function SettingsMenu({ onClose }: { onClose: () => void }) {
           onClose();
         }}
       >
-        <span>Update Branch Filter</span>
+        <span>{t("branch.updateBranchFilter")}</span>
       </button>
       <button
         type="button"
@@ -277,7 +280,7 @@ function SettingsMenu({ onClose }: { onClose: () => void }) {
           onClose();
         }}
       >
-        <span>Navigate Log to Branch Head</span>
+        <span>{t("branch.navigateToBranchHead")}</span>
       </button>
       <div className="commit-context-menu-separator" />
       <button

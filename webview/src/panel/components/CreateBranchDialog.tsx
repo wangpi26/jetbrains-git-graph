@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { t } from "../../shared/i18n";
 
 export interface CreateBranchDialogProps {
   /** Title shown at top, e.g. "Create Branch from dev" */
@@ -283,7 +284,7 @@ export function CreateBranchDialog({
               cursor: "pointer",
             }}
           >
-            Cancel
+            {t("dialog.cancel")}
           </button>
           <button
             type="button"
@@ -301,7 +302,7 @@ export function CreateBranchDialog({
               opacity: branchName.trim() && !submitting ? 1 : 0.4,
             }}
           >
-            Create
+            {t("dialog.create")}
           </button>
         </div>
       </div>

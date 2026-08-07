@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { bridge, bridgeWithProgress } from "../../shared/bridge";
+import { t } from "../../shared/i18n";
 import { usePanelStore } from "../../shared/store/panel-store";
 import type { Commit } from "../../shared/types/git";
 
@@ -354,50 +355,58 @@ export function CommitContextMenu({
     disabled?: boolean;
   }[] = [
     {
-      label: `Copy Revision Number`,
+      label: t("commit.copyRevisionNumber"),
       action: handleCopyHash,
       icon: <IconCopy />,
     },
     {
-      label: "Cherry-Pick",
+      label: t("commit.cherryPick"),
       action: handleCherryPick,
       icon: <IconCherryPick />,
     },
     { label: "", action: () => {}, separator: true },
-    { label: "Checkout Revision", action: handleCheckoutRevision },
+    { label: t("commit.checkoutRevision"), action: handleCheckoutRevision },
     { label: "", action: () => {}, separator: true },
     {
-      label: "Reset Current Branch to Here (Mixed)...",
+      label: t("commit.resetMixed"),
       action: handleResetMixed,
       icon: <IconRevert />,
     },
     {
-      label: "Reset Current Branch to Here (Soft)...",
+      label: t("commit.resetSoft"),
       action: handleResetSoft,
       icon: <IconRevert />,
     },
     {
-      label: "Reset Current Branch to Here (Hard)...",
+      label: t("commit.resetHard"),
       action: handleResetHard,
       icon: <IconRevert />,
     },
-    { label: "Revert Commit", action: handleRevert, icon: <IconRevert /> },
     {
-      label: "Drop Commit",
+      label: t("commit.revertCommit"),
+      action: handleRevert,
+      icon: <IconRevert />,
+    },
+    {
+      label: t("commit.dropCommit"),
       action: handleDropCommit,
       icon: <IconRevert />,
       disabled: isDropCommitDisabled,
     },
     { label: "", action: () => {}, separator: true },
-    { label: "New Branch...", action: handleNewBranch, icon: <IconBranch /> },
-    { label: "New Tag...", action: handleNewTag, icon: <IconTag /> },
+    {
+      label: t("commit.newBranch"),
+      action: handleNewBranch,
+      icon: <IconBranch />,
+    },
+    { label: t("commit.newTag"), action: handleNewTag, icon: <IconTag /> },
   ];
 
   // Add "Show in Git Log" when file filter is active
   if (filter.file) {
     items.push({ label: "", action: () => {}, separator: true });
     items.push({
-      label: "Show in Git Log",
+      label: t("commit.showInGitLog"),
       action: handleShowInGitLog,
       icon: <IconBranch />,
     });
