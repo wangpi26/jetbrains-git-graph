@@ -122,10 +122,10 @@ export function CommitFileContextMenu({
       const paths = changes
         .filter((f) => highlightedFiles.has(`${f.path}:${f.staged}`))
         .map((f) => f.path);
-      shelveChanges("Shelved changes", [...new Set(paths)]);
+      shelveChanges(t("commitTab.shelvedChanges"), [...new Set(paths)]);
     } else {
       // Shelve only this file
-      shelveChanges("Shelved changes", [file.path]);
+      shelveChanges(t("commitTab.shelvedChanges"), [file.path]);
     }
     onClose();
   }, [file, shelveChanges, highlightedFiles, changes, onClose]);

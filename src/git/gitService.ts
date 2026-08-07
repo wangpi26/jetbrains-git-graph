@@ -3,6 +3,7 @@ import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
 import { promisify } from "node:util";
+import { t } from "../i18n";
 import { GitCache } from "./cache";
 import { computeGraphLayout } from "./graphLayout";
 import type {
@@ -881,9 +882,7 @@ export class GitService {
         await fs.writeFile(tmpFile, diff, "utf-8");
         await this.execGit(["apply", "--3way", tmpFile]);
       } catch {
-        throw new Error(
-          "Commit was removed from history but its changes could not be applied to the working directory",
-        );
+        throw new Error(t("extension.commitRemovedWarning"));
       } finally {
         try {
           await fs.unlink(tmpFile);
@@ -1206,7 +1205,7 @@ export class GitService {
         "push",
         "--staged",
         "-m",
-        message || "Shelved changes",
+        message || t("extension.shelvedChanges"),
       ]);
 
       // 5. Re-stage previously staged files (that weren't stashed)
@@ -1222,7 +1221,13 @@ export class GitService {
       }
     } else {
       // Stash all changes including untracked
-      const args = ["stash", "push", "-m", message || "Shelved changes", "-u"];
+      const args = [
+        "stash",
+        "push",
+        "-m",
+        message || t("extension.shelvedChanges"),
+        "-u",
+      ];
       await this.execGit(args);
     }
     this.invalidateCache();
@@ -1359,7 +1364,7 @@ export class GitService {
     if (!patchContent.trim()) {
       // Clean up empty directory
       await fs.rm(entryDir, { recursive: true, force: true });
-      throw new Error("No changes to shelve");
+      throw new Error(t("extension.noChangesToShelve"));
     }
 
     // Write patch file

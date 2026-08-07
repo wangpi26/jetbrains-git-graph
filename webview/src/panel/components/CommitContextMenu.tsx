@@ -230,8 +230,8 @@ export function CommitContextMenu({
   const handleResetHard = async () => {
     onClose();
     const result = (await bridge.request("showConfirmMessage", {
-      message: `Reset '${currentBranch}' to ${shortHash} (hard)? This will discard all uncommitted changes.`,
-      confirmLabel: "Reset",
+      message: t("commit.resetHardConfirm", { currentBranch, shortHash }),
+      confirmLabel: t("commit.reset"),
     })) as { confirmed: boolean };
     if (!result.confirmed) return;
     try {
@@ -281,8 +281,11 @@ export function CommitContextMenu({
     onClose();
     try {
       const result = (await bridge.request("showConfirmMessage", {
-        message: `Drop commit ${shortHash} "${commit.subject}"?\n\nThis will remove the commit from history but keep its changes as unstaged modifications.\n\nThis operation cannot be undone.`,
-        confirmLabel: "Drop Commit",
+        message: t("commit.dropCommitConfirm", {
+          shortHash,
+          subject: commit.subject,
+        }),
+        confirmLabel: t("commit.dropCommitLabel"),
       })) as { confirmed: boolean };
       if (!result.confirmed) return;
       await bridgeWithProgress("dropCommit", { hash: commit.hash });

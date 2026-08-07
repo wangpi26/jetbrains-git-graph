@@ -349,7 +349,7 @@ export function CommitList({
                 paddingLeft: 8,
               }}
             >
-              Author
+              {t("commitList.author")}
             </span>
           </>
         )}
@@ -367,7 +367,7 @@ export function CommitList({
                 paddingLeft: 8,
               }}
             >
-              Date
+              {t("commitList.date")}
             </span>
           </>
         )}
@@ -384,7 +384,7 @@ export function CommitList({
                 paddingLeft: 8,
               }}
             >
-              Hash
+              {t("commitList.hash")}
             </span>
           </>
         )}
@@ -464,7 +464,9 @@ export function CommitList({
         {createBranchDialog &&
           createPortal(
             <CreateBranchDialog
-              title={`Create Branch from ${createBranchDialog.shortHash}`}
+              title={t("dialog.createBranchFromCommit", {
+                shortHash: createBranchDialog.shortHash,
+              })}
               defaultName=""
               placeholder={t("branch.branchNamePlaceholder")}
               onClose={() => setCreateBranchDialog(null)}

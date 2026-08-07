@@ -73,8 +73,7 @@ export function ShelfTab() {
         <div className="shelf-empty">
           <p>{t("shelf.noShelvedChanges")}</p>
           <p style={{ fontSize: 11, marginTop: 8 }}>
-            Use the shelf icon in the Commit tab toolbar to shelve changes for
-            later.
+            {t("shelf.emptyHintStash")}
           </p>
         </div>
       </div>
@@ -141,7 +140,9 @@ function ShelfItem({
         <span className={`shelf-item-chevron ${expanded ? "" : "collapsed"}`}>
           <ChevronIcon />
         </span>
-        <span className="shelf-item-title">{entry.message || "Changes"}</span>
+        <span className="shelf-item-title">
+          {entry.message || t("shelf.defaultChanges")}
+        </span>
         <span className="shelf-item-info">
           {entry.files.length} {entry.files.length === 1 ? "file" : "files"},{" "}
           {dateStr}

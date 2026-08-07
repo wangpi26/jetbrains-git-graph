@@ -717,7 +717,7 @@ export function activate(context: vscode.ExtensionContext) {
   messageRouter.handle("openPushPanel", async () => {
     if (!gitService) return NOT_GIT_REPO;
     const branch = await gitService.getCurrentBranch();
-    if (!branch) return { error: "No current branch" };
+    if (!branch) return { error: t("extension.noCurrentBranch") };
     const remote = await gitService.getDefaultRemote(branch);
     pushPanel.open(branch, remote);
     return { success: true };
@@ -882,7 +882,10 @@ export function activate(context: vscode.ExtensionContext) {
     if (!hash || !/^[0-9a-f]{40}$/i.test(hash)) {
       return {
         success: false,
-        error: { code: ErrorCode.INVALID_REF, message: "Invalid commit hash" },
+        error: {
+          code: ErrorCode.INVALID_REF,
+          message: t("extension.invalidCommitHash"),
+        },
       };
     }
 
@@ -893,7 +896,7 @@ export function activate(context: vscode.ExtensionContext) {
         success: false,
         error: {
           code: ErrorCode.GIT_COMMAND_FAILED,
-          message: "Merge commits cannot be dropped",
+          message: t("extension.mergeCommitsCannotBeDropped"),
         },
       };
     }
@@ -903,7 +906,10 @@ export function activate(context: vscode.ExtensionContext) {
       const timeoutMs = 30_000;
       const dropPromise = gitService.dropCommit(hash);
       const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("Operation timed out")), timeoutMs),
+        setTimeout(
+          () => reject(new Error(t("extension.operationTimedOut"))),
+          timeoutMs,
+        ),
       );
 
       await Promise.race([dropPromise, timeoutPromise]);
@@ -1151,7 +1157,7 @@ export function activate(context: vscode.ExtensionContext) {
         "vscode.diff",
         leftUri,
         rightUri,
-        `${filePath} (HEAD ↔ Staged)`,
+        t("extension.headVsStaged", { filePath }),
       );
     } else {
       // Show diff between HEAD and working tree
@@ -1162,7 +1168,7 @@ export function activate(context: vscode.ExtensionContext) {
         "vscode.diff",
         leftUri,
         rightUri,
-        `${filePath} (HEAD ↔ Working Tree)`,
+        t("extension.headVsWorkingTree", { filePath }),
       );
     }
     return { success: true };
@@ -1224,7 +1230,7 @@ export function activate(context: vscode.ExtensionContext) {
       "vscode.diff",
       parentUri,
       stashUri,
-      `${filePath} (Shelved: ${stashId})`,
+      t("extension.shelvedDiff", { filePath, stashId }),
     );
     return { success: true };
   });
@@ -1318,7 +1324,10 @@ export function activate(context: vscode.ExtensionContext) {
         "vscode.diff",
         baseUri,
         modifiedUri,
-        `${filePath.split("/").pop()} (Shelved in ${shelfName})`,
+        t("extension.shelvedInShelf", {
+          fileName: filePath.split("/").pop() ?? "",
+          shelfName,
+        }),
       );
       return { success: true };
     } catch (err: unknown) {
@@ -1338,8 +1347,11 @@ export function activate(context: vscode.ExtensionContext) {
     // Ask user where to save the patch
     const saveUri = await vscode.window.showSaveDialog({
       defaultUri: vscode.Uri.file(`${workspaceRoot}/${shelfName}.patch`),
-      filters: { "Patch files": ["patch", "diff"], "All files": ["*"] },
-      title: "Save Patch File",
+      filters: {
+        [t("extension.patchFilesFilter")]: ["patch", "diff"],
+        [t("extension.allFilesFilter")]: ["*"],
+      },
+      title: t("extension.savePatchFile"),
     });
 
     if (!saveUri) return { success: false };
@@ -1385,8 +1397,11 @@ export function activate(context: vscode.ExtensionContext) {
     // Ask user to select patch files
     const fileUris = await vscode.window.showOpenDialog({
       canSelectMany: true,
-      filters: { "Patch files": ["patch", "diff"], "All files": ["*"] },
-      title: "Import Patch Files",
+      filters: {
+        [t("extension.patchFilesFilter")]: ["patch", "diff"],
+        [t("extension.allFilesFilter")]: ["*"],
+      },
+      title: t("extension.importPatchFiles"),
     });
 
     if (!fileUris || fileUris.length === 0) return { success: false };
@@ -1497,7 +1512,10 @@ export function activate(context: vscode.ExtensionContext) {
       "vscode.diff",
       vscode.Uri.parse(`${GIT_BRAINS_SCHEME}:/${currentBranch}`),
       vscode.Uri.parse(`${GIT_BRAINS_SCHEME}:/${branchName}`),
-      `${currentBranch} ↔ ${branchName}`,
+      t("extension.compareBranches", {
+        currentBranch: currentBranch ?? "",
+        branchName: branchName ?? "",
+      }),
     );
     return { success: true };
   });
@@ -1570,7 +1588,7 @@ export function activate(context: vscode.ExtensionContext) {
     100,
   );
   statusBarItem.text = "$(git-branch) IDEA Git";
-  statusBarItem.tooltip = "Open IDEA Git Graph Panel";
+  statusBarItem.tooltip = t("extension.openPanel");
   statusBarItem.command = "git-brains.gitLog.focus";
   statusBarItem.show();
   context.subscriptions.push(statusBarItem);

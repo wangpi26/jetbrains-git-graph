@@ -187,4 +187,95 @@ export const zhCN: Record<string, string> = {
   "rollback.rollingBack": "正在回滚...",
   "rollback.rollback": "回滚",
   "rollback.deleteLocalCopies": "删除已添加文件的本地副本",
+  // Commit panel - CommitTab group labels
+  "commitTab.mergeConflicts": "合并冲突",
+  "commitTab.changes": "更改",
+  "commitTab.staged": "已暂存",
+  "commitTab.unversionedFilesLabel": "未版本控制的文件",
+  "commitTab.shelvedChanges": "搁置的更改",
+  "commitTab.deleteDir": '删除 "{dirName}"...',
+
+  // Branch tree - current branch header
+  "branch.currentBranchLabel": "当前分支：",
+  "branch.detached": "游离头",
+  "branch.checkoutAndRebaseOnto": "检出并变基到 '{currentBranch}'",
+  "branch.rebaseCurrentOnto": "将 '{currentBranch}' 变基到 '{branchName}'",
+  "branch.mergeBranchIntoCurrent": "将 '{branchName}' 合并到 '{currentBranch}'",
+  "branch.deleteConfirm": "删除分支 '{branchName}'？",
+  "branch.forceDelete": "强制删除",
+  "branch.notFullyMergedConfirm": "分支 '{branchName}' 未完全合并。强制删除？",
+  "branch.merge": "合并",
+  "branch.rebase": "变基",
+  "branch.mergeConfirm": "将 '{branchName}' 合并到 '{currentBranch}'？",
+  "branch.rebaseConfirm": "将 '{currentBranch}' 变基到 '{branchName}'？",
+
+  // File context menu - confirm dialogs
+  "file.revertConfirm": "从此提交还原 '{fileName}' 的更改？",
+  "file.revert": "还原",
+  "file.applyConfirm": "从此提交将 '{fileName}' 的更改应用到工作区？",
+  "file.apply": "应用",
+
+  // Commit context menu - confirm dialogs
+  "commit.resetHardConfirm":
+    "将 '{currentBranch}' 重置到 {shortHash} (hard)？这将丢弃所有未提交的更改。",
+  "commit.reset": "重置",
+  "commit.dropCommitConfirm":
+    '丢弃提交 {shortHash} "{subject}"？\n\n这将从历史中移除该提交，但保留其更改为未暂存的修改。\n\n此操作不可撤销。',
+  "commit.dropCommitLabel": "丢弃提交",
+
+  // Panel toolbar - filter labels and date ranges
+  "panel.toolbar.branch": "分支",
+  "panel.toolbar.user": "用户",
+  "panel.toolbar.allBranches": "所有分支",
+  "panel.toolbar.allUsers": "所有用户",
+  "panel.toolbar.allTime": "所有时间",
+  "panel.toolbar.today": "今天",
+  "panel.toolbar.last7Days": "最近 7 天",
+  "panel.toolbar.last30Days": "最近 30 天",
+  "panel.toolbar.last90Days": "最近 90 天",
+
+  // CreateBranchDialog
+  "dialog.branchName": "分支名：",
+  "dialog.checkoutBranch": "检出分支",
+  "dialog.overwriteExisting": "覆盖已有分支",
+
+  // Shelf tab default
+  "shelf.defaultChanges": "更改",
+  // Shelf empty state hints
+  "shelf.emptyHintStash":
+    "使用提交标签页工具栏中的搁置图标来搁置更改以备后用。",
+  "shelf.emptyHintIdea":
+    "使用提交标签页工具栏中的搁置图标来搁置更改到 .idea/shelf/（IDEA 兼容格式）。",
+
+  // Amend checkbox
+  "commitMessage.amend": "修订",
+
+  // Create Branch dialog titles
+  "dialog.createBranchFromPoint": "从 '{startPoint}' 创建分支",
+  "dialog.createBranchFromCommit": "从 {shortHash} 创建分支",
+
+  // Panel toolbar - History label
+  "panel.toolbar.history": "历史：",
+  // FileChangeTree
+  "file.changedFiles": "已更改的文件",
+  "file.selectCommitToSee": "选择一个提交以查看更改的文件",
+  "file.noChangesToFile": "此提交中 {fileName} 无更改",
+
+  // CommitDetail
+  "commit.selectToViewDetails": "选择一个提交以查看详情",
+
+  // CommitList column headers
+  "commitList.author": "作者",
+  "commitList.date": "日期",
+  "commitList.hash": "哈希",
+  // CommitInfo date prefix
+  "commitInfo.on": "于",
+  // Commit panel tabs
+  "commitTab.commit": "提交",
+  "commitTab.shelf": "搁置",
+  "commitTab.stash": "贮藏",
+  // Commit buttons
+  "commitButton.commit": "提交",
+  "commitButton.commitAndPush": "提交并推送...",
+  "commitButton.commitAndPushMenu": "提交并推送",
 };

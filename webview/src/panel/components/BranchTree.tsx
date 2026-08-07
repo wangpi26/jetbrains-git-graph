@@ -582,7 +582,8 @@ export function BranchTree({
                 : "var(--description-fg)",
             }}
           >
-            Current Branch: {headBranch?.name ?? "detached"}
+            {t("branch.currentBranchLabel")}{" "}
+            {headBranch?.name ?? t("branch.detached")}
           </div>
         )}
 
@@ -677,7 +678,9 @@ export function BranchTree({
         {createBranchDialog &&
           createPortal(
             <CreateBranchDialog
-              title={`Create Branch from '${createBranchDialog.startPoint}'`}
+              title={t("dialog.createBranchFromPoint", {
+                startPoint: createBranchDialog.startPoint,
+              })}
               defaultName={createBranchDialog.defaultName}
               placeholder={t("branch.branchNamePlaceholder")}
               onClose={() => setCreateBranchDialog(null)}
@@ -1164,8 +1167,8 @@ function BranchContextMenu({
   const handleDelete = async () => {
     onClose();
     const result = (await bridge.request("showConfirmMessage", {
-      message: `Delete branch '${branch.name}'?`,
-      confirmLabel: "Delete",
+      message: t("branch.deleteConfirm", { branchName: branch.name }),
+      confirmLabel: t("common.delete"),
     })) as { confirmed: boolean };
     if (!result.confirmed) return;
     try {
@@ -1177,8 +1180,8 @@ function BranchContextMenu({
     } catch (_err) {
       // If normal delete fails (unmerged), ask for force delete
       const forceResult = (await bridge.request("showConfirmMessage", {
-        message: `Branch '${branch.name}' is not fully merged. Force delete?`,
-        confirmLabel: "Force Delete",
+        message: t("branch.notFullyMergedConfirm", { branchName: branch.name }),
+        confirmLabel: t("branch.forceDelete"),
       })) as { confirmed: boolean };
       if (forceResult.confirmed) {
         try {
@@ -1232,8 +1235,11 @@ function BranchContextMenu({
   const handleMerge = async () => {
     onClose();
     const result = (await bridge.request("showConfirmMessage", {
-      message: `Merge '${branch.name}' into '${currentBranch}'?`,
-      confirmLabel: "Merge",
+      message: t("branch.mergeConfirm", {
+        branchName: branch.name,
+        currentBranch,
+      }),
+      confirmLabel: t("branch.merge"),
     })) as { confirmed: boolean };
     if (!result.confirmed) return;
     try {
@@ -1246,8 +1252,11 @@ function BranchContextMenu({
   const handleRebase = async () => {
     onClose();
     const result = (await bridge.request("showConfirmMessage", {
-      message: `Rebase '${currentBranch}' onto '${branch.name}'?`,
-      confirmLabel: "Rebase",
+      message: t("branch.rebaseConfirm", {
+        currentBranch,
+        branchName: branch.name,
+      }),
+      confirmLabel: t("branch.rebase"),
     })) as { confirmed: boolean };
     if (!result.confirmed) return;
     try {
@@ -1285,7 +1294,7 @@ function BranchContextMenu({
   });
   if (!isCurrent) {
     items.push({
-      label: `Checkout and Rebase onto '${currentBranch}'`,
+      label: t("branch.checkoutAndRebaseOnto", { currentBranch }),
       action: handleCheckoutAndRebase,
     });
   }
@@ -1293,11 +1302,17 @@ function BranchContextMenu({
   if (!isCurrent) {
     items.push({ label: "", action: () => {}, separator: true });
     items.push({
-      label: `Rebase '${currentBranch}' onto '${branch.name}'`,
+      label: t("branch.rebaseCurrentOnto", {
+        currentBranch,
+        branchName: branch.name,
+      }),
       action: handleRebase,
     });
     items.push({
-      label: `Merge '${branch.name}' into '${currentBranch}'`,
+      label: t("branch.mergeBranchIntoCurrent", {
+        branchName: branch.name,
+        currentBranch,
+      }),
       action: handleMerge,
     });
   }

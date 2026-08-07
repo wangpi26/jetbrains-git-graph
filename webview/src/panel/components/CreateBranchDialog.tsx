@@ -195,7 +195,7 @@ export function CreateBranchDialog({
                 whiteSpace: "nowrap",
               }}
             >
-              Branch Name:
+              {t("dialog.branchName")}
             </label>
             <input
               ref={inputRef}
@@ -245,7 +245,7 @@ export function CreateBranchDialog({
             }}
           >
             <Checkbox checked={checkout} onChange={(v) => setCheckout(v)} />
-            Checkout branch
+            {t("dialog.checkoutBranch")}
           </label>
           <label
             style={{
@@ -264,7 +264,7 @@ export function CreateBranchDialog({
                 setError(null);
               }}
             />
-            Overwrite existing branch
+            {t("dialog.overwriteExisting")}
           </label>
         </div>
 

@@ -540,21 +540,21 @@ export function CommitApp() {
           className={`commit-tab ${activeTab === "commit" ? "active" : ""}`}
           onClick={() => setActiveTab("commit")}
         >
-          Commit
+          {t("commitTab.commit")}
         </button>
         <button
           type="button"
           className={`commit-tab ${activeTab === "shelf" ? "active" : ""}`}
           onClick={() => setActiveTab("shelf")}
         >
-          Shelf
+          {t("commitTab.shelf")}
         </button>
         <button
           type="button"
           className={`commit-tab ${activeTab === "stash" ? "active" : ""}`}
           onClick={() => setActiveTab("stash")}
         >
-          Stash
+          {t("commitTab.stash")}
         </button>
       </div>
       <RebaseBanner />

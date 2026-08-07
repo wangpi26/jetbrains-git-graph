@@ -1,5 +1,5 @@
 {
-  "name": "idea-like-git-graph-ziop",
+  "name": "idea-like-git-graph",
   "displayName": "JetBrains Git - IntelliJ IDEA Git Graph, Commit & Shelf for VS Code",
   "publisher": "ziop",
   "description": "Bring IntelliJ IDEA / JetBrains Git experience to VS Code & Cursor: Git graph visualization, IDEA-style commit panel with shelf/stash, branch management, cherry-pick, rebase, merge, 3-way merge editor, and context menus. The best JetBrains Git alternative for Visual Studio Code.",
@@ -52,7 +52,7 @@
       "activitybar": [
         {
           "id": "git-brains-commit",
-          "title": "Commit",
+          "title": "%viewsContainers.activitybar.git-brains-commit.title%",
           "icon": "images/commit-icon.svg"
         }
       ]
@@ -62,98 +62,98 @@
         {
           "type": "webview",
           "id": "git-brains.gitLog",
-          "name": "Git Log"
+          "name": "%views.git-brains.gitLog.name%"
         }
       ],
       "git-brains-commit": [
         {
           "type": "webview",
           "id": "git-brains.commitPanel",
-          "name": "Commit"
+          "name": "%views.git-brains.commitPanel.name%"
         }
       ]
     },
     "commands": [
       {
         "command": "git-brains.refreshLog",
-        "title": "Refresh Git Log",
+        "title": "%command.git-brains.refreshLog.title%",
         "icon": "$(refresh)",
         "category": "JetGit"
       },
       {
         "command": "git-brains.openMergeEditor",
-        "title": "Open Merge Editor",
+        "title": "%command.git-brains.openMergeEditor.title%",
         "category": "JetGit"
       },
       {
         "command": "git-brains.openConflicts",
-        "title": "Conflicts",
+        "title": "%command.git-brains.openConflicts.title%",
         "icon": "$(git-merge)",
         "category": "JetGit"
       },
       {
         "command": "git-brains.openMergeEditorFromSCM",
-        "title": "Open in JetGit Merge Editor",
+        "title": "%command.git-brains.openMergeEditorFromSCM.title%",
         "icon": "$(git-merge)",
         "category": "JetGit"
       },
       {
         "command": "git-brains.showFileHistory",
-        "title": "(JetGit) Show File History",
+        "title": "%command.git-brains.showFileHistory.title%",
         "icon": "$(history)",
         "category": "JetGit"
       },
       {
         "command": "git-brains.nextDiff",
-        "title": "Next File Diff",
+        "title": "%command.git-brains.nextDiff.title%",
         "icon": "$(arrow-down)",
         "category": "JetGit"
       },
       {
         "command": "git-brains.prevDiff",
-        "title": "Previous File Diff",
+        "title": "%command.git-brains.prevDiff.title%",
         "icon": "$(arrow-up)",
         "category": "JetGit"
       },
       {
         "command": "git-brains.commitPanel.refresh",
-        "title": "Refresh Changes",
+        "title": "%command.git-brains.commitPanel.refresh.title%",
         "icon": "$(refresh)",
         "category": "JetGit"
       },
       {
         "command": "git-brains.commitPanel.commit",
-        "title": "Commit",
+        "title": "%command.git-brains.commitPanel.commit.title%",
         "icon": "$(check)",
         "category": "JetGit"
       },
       {
         "command": "git-brains.commitPanel.commitAndPush",
-        "title": "Commit and Push",
+        "title": "%command.git-brains.commitPanel.commitAndPush.title%",
         "icon": "$(cloud-upload)",
         "category": "JetGit"
       },
       {
         "command": "git-brains.commitPanel.shelve",
-        "title": "Shelve Changes",
+        "title": "%command.git-brains.commitPanel.shelve.title%",
         "icon": "$(archive)",
         "category": "JetGit"
       },
       {
         "command": "git-brains.commitPanel.unshelve",
-        "title": "Unshelve Changes",
+        "title": "%command.git-brains.commitPanel.unshelve.title%",
         "icon": "$(package)",
         "category": "JetGit"
       },
       {
         "command": "git-brains.openPushPanel",
-        "title": "Push...",
+        "title": "%command.git-brains.openPushPanel.title%",
         "icon": "$(cloud-upload)",
         "category": "JetGit"
       },
       {
         "command": "git-brains.editSource",
-        "title": "(JetGit) Edit Source",
+        "title": "%command.git-brains.editSource.title%",
         "icon": "$(go-to-file)",
         "category": "JetGit"
       }

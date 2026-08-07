@@ -1,0 +1,19 @@
+{
+  "viewsContainers.activitybar.git-brains-commit.title": "Commit",
+  "views.git-brains.gitLog.name": "Git Log",
+  "views.git-brains.commitPanel.name": "Commit",
+  "command.git-brains.refreshLog.title": "Refresh Git Log",
+  "command.git-brains.openMergeEditor.title": "Open Merge Editor",
+  "command.git-brains.openConflicts.title": "Conflicts",
+  "command.git-brains.openMergeEditorFromSCM.title": "Open in JetGit Merge Editor",
+  "command.git-brains.showFileHistory.title": "Show File History",
+  "command.git-brains.nextDiff.title": "Next File Diff",
+  "command.git-brains.prevDiff.title": "Previous File Diff",
+  "command.git-brains.commitPanel.refresh.title": "Refresh Changes",
+  "command.git-brains.commitPanel.commit.title": "Commit",
+  "command.git-brains.commitPanel.commitAndPush.title": "Commit and Push",
+  "command.git-brains.commitPanel.shelve.title": "Shelve Changes",
+  "command.git-brains.commitPanel.unshelve.title": "Unshelve Changes",
+  "command.git-brains.openPushPanel.title": "Push...",
+  "command.git-brains.editSource.title": "(JetGit) Edit Source"
+}

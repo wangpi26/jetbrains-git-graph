@@ -263,8 +263,10 @@ export function FileContextMenu({ x, y, file, onClose }: FileContextMenuProps) {
     onClose();
     if (!selectedCommitHash) return;
     const result = (await bridge.request("showConfirmMessage", {
-      message: `Revert changes to '${filePath.split("/").pop()}' from this commit?`,
-      confirmLabel: "Revert",
+      message: t("file.revertConfirm", {
+        fileName: filePath.split("/").pop() ?? "",
+      }),
+      confirmLabel: t("file.revert"),
     })) as { confirmed: boolean };
     if (!result.confirmed) return;
     try {
@@ -282,8 +284,10 @@ export function FileContextMenu({ x, y, file, onClose }: FileContextMenuProps) {
     onClose();
     if (!selectedCommitHash) return;
     const result = (await bridge.request("showConfirmMessage", {
-      message: `Apply changes to '${filePath.split("/").pop()}' from this commit to working tree?`,
-      confirmLabel: "Apply",
+      message: t("file.applyConfirm", {
+        fileName: filePath.split("/").pop() ?? "",
+      }),
+      confirmLabel: t("file.apply"),
     })) as { confirmed: boolean };
     if (!result.confirmed) return;
     try {

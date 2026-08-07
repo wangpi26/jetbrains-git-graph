@@ -1,0 +1,19 @@
+{
+  "viewsContainers.activitybar.git-brains-commit.title": "提交",
+  "views.git-brains.gitLog.name": "Git 日志",
+  "views.git-brains.commitPanel.name": "提交",
+  "command.git-brains.refreshLog.title": "刷新 Git 日志",
+  "command.git-brains.openMergeEditor.title": "打开合并编辑器",
+  "command.git-brains.openConflicts.title": "冲突",
+  "command.git-brains.openMergeEditorFromSCM.title": "在 JetGit 合并编辑器中打开",
+  "command.git-brains.showFileHistory.title": "显示文件历史",
+  "command.git-brains.nextDiff.title": "下一个文件差异",
+  "command.git-brains.prevDiff.title": "上一个文件差异",
+  "command.git-brains.commitPanel.refresh.title": "刷新更改",
+  "command.git-brains.commitPanel.commit.title": "提交",
+  "command.git-brains.commitPanel.commitAndPush.title": "提交并推送",
+  "command.git-brains.commitPanel.shelve.title": "搁置更改",
+  "command.git-brains.commitPanel.unshelve.title": "取消搁置更改",
+  "command.git-brains.openPushPanel.title": "推送...",
+  "command.git-brains.editSource.title": "(JetGit) 编辑源文件"
+}

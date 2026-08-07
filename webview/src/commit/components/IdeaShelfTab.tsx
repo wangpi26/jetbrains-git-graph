@@ -91,8 +91,7 @@ export function IdeaShelfTab() {
         <div className="shelf-empty">
           <p>{t("shelf.noShelvedChanges")}</p>
           <p style={{ fontSize: 11, marginTop: 8 }}>
-            Use the shelf icon in the Commit tab toolbar to shelve changes to
-            .idea/shelf/ (IDEA-compatible format).
+            {t("shelf.emptyHintIdea")}
           </p>
         </div>
         {bgContextMenu && (

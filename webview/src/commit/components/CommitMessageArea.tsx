@@ -113,7 +113,7 @@ export function CommitMessageArea() {
             checked={amend}
             onChange={(e) => setAmend(e.target.checked)}
           />
-          Amend
+          {t("commitMessage.amend")}
         </label>
         <Tooltip text={t("commitMessage.recentMessages")}>
           <span
@@ -172,7 +172,7 @@ export function CommitMessageArea() {
           disabled={!canCommit}
           onClick={handleCommit}
         >
-          Commit
+          {t("commitButton.commit")}
         </button>
 
         <div className="commit-dropdown" ref={dropdownRef}>
@@ -182,7 +182,7 @@ export function CommitMessageArea() {
             disabled={!canCommit}
             onClick={handleCommitAndPush}
           >
-            Commit and Push...
+            {t("commitButton.commitAndPush")}
           </button>
           <button
             type="button"
@@ -208,7 +208,7 @@ export function CommitMessageArea() {
                 className="commit-dropdown-item"
                 onClick={handleCommitAndPush}
               >
-                Commit and Push
+                {t("commitButton.commitAndPushMenu")}
               </button>
               <div className="commit-dropdown-separator" />
               <button

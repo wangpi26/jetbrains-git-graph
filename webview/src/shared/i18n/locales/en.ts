@@ -188,4 +188,98 @@ export const en: Record<string, string> = {
   "rollback.rollingBack": "Rolling back...",
   "rollback.rollback": "Rollback",
   "rollback.deleteLocalCopies": "Delete local copies of added files",
+  // Commit panel - CommitTab group labels
+  "commitTab.mergeConflicts": "Merge Conflicts",
+  "commitTab.changes": "Changes",
+  "commitTab.staged": "Staged",
+  "commitTab.unversionedFilesLabel": "Unversioned Files",
+  "commitTab.shelvedChanges": "Shelved changes",
+  "commitTab.deleteDir": 'Delete "{dirName}"...',
+
+  // Branch tree - current branch header
+  "branch.currentBranchLabel": "Current Branch:",
+  "branch.detached": "detached",
+  "branch.checkoutAndRebaseOnto": "Checkout and Rebase onto '{currentBranch}'",
+  "branch.rebaseCurrentOnto": "Rebase '{currentBranch}' onto '{branchName}'",
+  "branch.mergeBranchIntoCurrent":
+    "Merge '{branchName}' into '{currentBranch}'",
+  "branch.deleteConfirm": "Delete branch '{branchName}'?",
+  "branch.forceDelete": "Force Delete",
+  "branch.notFullyMergedConfirm":
+    "Branch '{branchName}' is not fully merged. Force delete?",
+  "branch.merge": "Merge",
+  "branch.rebase": "Rebase",
+  "branch.mergeConfirm": "Merge '{branchName}' into '{currentBranch}'?",
+  "branch.rebaseConfirm": "Rebase '{currentBranch}' onto '{branchName}'?",
+
+  // File context menu - confirm dialogs
+  "file.revertConfirm": "Revert changes to '{fileName}' from this commit?",
+  "file.revert": "Revert",
+  "file.applyConfirm":
+    "Apply changes to '{fileName}' from this commit to working tree?",
+  "file.apply": "Apply",
+
+  // Commit context menu - confirm dialogs
+  "commit.resetHardConfirm":
+    "Reset '{currentBranch}' to {shortHash} (hard)? This will discard all uncommitted changes.",
+  "commit.reset": "Reset",
+  "commit.dropCommitConfirm":
+    'Drop commit {shortHash} "{subject}"?\n\nThis will remove the commit from history but keep its changes as unstaged modifications.\n\nThis operation cannot be undone.',
+  "commit.dropCommitLabel": "Drop Commit",
+
+  // Panel toolbar - filter labels and date ranges
+  "panel.toolbar.branch": "Branch",
+  "panel.toolbar.user": "User",
+  "panel.toolbar.allBranches": "All branches",
+  "panel.toolbar.allUsers": "All users",
+  "panel.toolbar.allTime": "All time",
+  "panel.toolbar.today": "Today",
+  "panel.toolbar.last7Days": "Last 7 days",
+  "panel.toolbar.last30Days": "Last 30 days",
+  "panel.toolbar.last90Days": "Last 90 days",
+
+  // CreateBranchDialog
+  "dialog.branchName": "Branch Name:",
+  "dialog.checkoutBranch": "Checkout branch",
+  "dialog.overwriteExisting": "Overwrite existing branch",
+
+  // Shelf tab default
+  "shelf.defaultChanges": "Changes",
+  // Shelf empty state hints
+  "shelf.emptyHintStash":
+    "Use the shelf icon in the Commit tab toolbar to shelve changes for later.",
+  "shelf.emptyHintIdea":
+    "Use the shelf icon in the Commit tab toolbar to shelve changes to .idea/shelf/ (IDEA-compatible format).",
+
+  // Amend checkbox
+  "commitMessage.amend": "Amend",
+
+  // Create Branch dialog titles
+  "dialog.createBranchFromPoint": "Create Branch from '{startPoint}'",
+  "dialog.createBranchFromCommit": "Create Branch from {shortHash}",
+
+  // Panel toolbar - History label
+  "panel.toolbar.history": "History:",
+  // FileChangeTree
+  "file.changedFiles": "Changed Files",
+  "file.selectCommitToSee": "Select a commit to see changed files",
+  "file.noChangesToFile": "No changes to {fileName} in this commit",
+
+  // CommitDetail
+  "commit.selectToViewDetails": "Select a commit to view details",
+
+  // CommitList column headers
+  "commitList.author": "Author",
+  "commitList.date": "Date",
+  "commitList.hash": "Hash",
+  // CommitInfo date prefix
+  "commitInfo.on": "on",
+  // Commit panel tabs
+  "commitTab.commit": "Commit",
+  "commitTab.shelf": "Shelf",
+  "commitTab.stash": "Stash",
+  // Commit buttons
+  "commitButton.commit": "Commit",
+  "commitButton.commitAndPush": "Commit and Push...",
+  "commitButton.commitAndPushMenu": "Commit and Push",
 };

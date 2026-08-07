@@ -72,7 +72,7 @@ export function FileChangeTree() {
   if (displayFiles.length === 0 && commitFiles.length === 0) {
     return (
       <div style={{ padding: 12, opacity: 0.5 }}>
-        Select a commit to see changed files
+        {t("file.selectCommitToSee")}
       </div>
     );
   }
@@ -80,7 +80,9 @@ export function FileChangeTree() {
   if (displayFiles.length === 0 && filter.file) {
     return (
       <div style={{ padding: 12, opacity: 0.5 }}>
-        No changes to {filter.file.split("/").pop()} in this commit
+        {t("file.noChangesToFile", {
+          fileName: filter.file.split("/").pop() ?? "",
+        })}
       </div>
     );
   }
@@ -107,7 +109,7 @@ export function FileChangeTree() {
             textTransform: "uppercase",
           }}
         >
-          Changed Files
+          {t("file.changedFiles")}
         </span>
         <span style={{ display: "flex", gap: 2 }}>
           <Tooltip text={t("file.treeView")}>
