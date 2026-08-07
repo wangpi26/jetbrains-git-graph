@@ -19,6 +19,15 @@ export function Toolbar() {
   const [showDateDropdown, setShowDateDropdown] = useState(false);
   const [showBranchDropdown, setShowBranchDropdown] = useState(false);
   const [showViewOptions, setShowViewOptions] = useState(false);
+  const [showRepoDropdown, setShowRepoDropdown] = useState(false);
+  const repos = usePanelStore((s) => s.repos);
+  const fetchRepos = usePanelStore((s) => s.fetchRepos);
+  const switchRepo = usePanelStore((s) => s.switchRepo);
+
+  // Fetch repos on mount (to support nested repo discovery)
+  useEffect(() => {
+    void fetchRepos();
+  }, [fetchRepos]);
 
   // Collect unique authors from commits
   const authors = useMemo(() => {
@@ -97,6 +106,103 @@ export function Toolbar() {
         flexShrink: 0,
       }}
     >
+      {/* Repo selector (only shown when multiple repos discovered) */}
+      {repos.length > 1 && (
+        <div style={{ position: "relative" }}>
+          <button
+            type="button"
+            onClick={() => {
+              setShowRepoDropdown(!showRepoDropdown);
+              setShowUserDropdown(false);
+              setShowDateDropdown(false);
+              setShowBranchDropdown(false);
+              setShowViewOptions(false);
+            }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              padding: "2px 8px",
+              fontSize: "var(--font-size, 11px)",
+              color: "var(--app-fg)",
+              background: "transparent",
+              border: "1px solid var(--border, #333)",
+              borderRadius: 3,
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+            }}
+          >
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+              <path
+                d="M1.5 3.5C1.5 2.95 1.95 2.5 2.5 2.5H6.09c.27 0 .52.1.71.3l5.41 5.41c.39.39.39 1.02 0 1.41l-3.59 3.59c-.39.39-1.02.39-1.41 0L1.79 7.8a1 1 0 01-.29-.71V3.5z"
+                fill="var(--app-bg, #fff)"
+                stroke="currentColor"
+                strokeWidth="1.2"
+              />
+              <circle cx="5" cy="5" r="0.9" fill="currentColor" />
+            </svg>
+            {repos.find((r) => r.isActive)?.name ?? "Select Repo"}
+            <svg width="10" height="10" viewBox="0 0 16 16" fill="none">
+              <polyline
+                points="4,6 8,10 12,6"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+          {showRepoDropdown && (
+            <div
+              style={{
+                position: "absolute",
+                top: "100%",
+                left: 0,
+                marginTop: 2,
+                zIndex: 100,
+                background: "var(--vscode-menu-background, #1e1e1e)",
+                border: "1px solid var(--vscode-menu-border, #454545)",
+                borderRadius: 4,
+                padding: 4,
+                minWidth: 150,
+                maxHeight: 300,
+                overflowY: "auto",
+              }}
+            >
+              {repos.map((repo) => (
+                <button
+                  key={repo.path}
+                  type="button"
+                  onClick={() => {
+                    void switchRepo(repo.path);
+                    setShowRepoDropdown(false);
+                  }}
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    textAlign: "left",
+                    padding: "4px 8px",
+                    fontSize: "var(--font-size, 11px)",
+                    color: repo.isActive
+                      ? "var(--button-fg, #fff)"
+                      : "var(--app-fg)",
+                    background: repo.isActive
+                      ? "var(--selected-bg, #04395e)"
+                      : "transparent",
+                    border: "none",
+                    borderRadius: 3,
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {repo.path === "." ? repo.name : repo.path}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       <SearchInput
         placeholder={t("panel.toolbar.searchCommits")}
         defaultValue={filter.searchQuery}

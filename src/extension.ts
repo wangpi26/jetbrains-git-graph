@@ -1,6 +1,7 @@
 import * as nodefs from "node:fs/promises";
 import * as vscode from "vscode";
 import { GitService } from "./git/gitService";
+import { type DiscoveredRepo, discoverGitRepos } from "./git/repoScanner";
 import type { DiffFile, LaneSnapshot } from "./git/types";
 import { initLocale, t } from "./i18n";
 import { MessageRouter } from "./messages/messageRouter";
@@ -8,6 +9,7 @@ import { ErrorCode } from "./messages/protocol";
 import { CommitViewProvider } from "./views/commitViewProvider";
 import { ConflictsManager } from "./views/conflictsManager";
 import { DiffEditorManager } from "./views/diffEditorManager";
+import { GitBlameProvider } from "./views/gitBlameProvider";
 import {
   GIT_BRAINS_SCHEME,
   GitContentProvider,
@@ -36,6 +38,8 @@ function withProgress(
 }
 
 export function activate(context: vscode.ExtensionContext) {
+  const outputChannel = vscode.window.createOutputChannel("JetGit");
+  context.subscriptions.push(outputChannel);
   initLocale();
   // 1. MessageRouter (always created)
   const messageRouter = new MessageRouter();
@@ -53,7 +57,7 @@ export function activate(context: vscode.ExtensionContext) {
     ),
   );
 
-  // 2b. Git services for all workspace folders
+  // 2b. Git services for all workspace folders + nested repo discovery
   const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
   const allWorkspaceRoots = (vscode.workspace.workspaceFolders ?? []).map(
     (f) => f.uri.fsPath,
@@ -61,16 +65,64 @@ export function activate(context: vscode.ExtensionContext) {
   let gitService: GitService | null = null;
   let diffManager: DiffEditorManager | null = null;
 
+  // Discovered repos (for repo selector when root is not a git repo or has nested repos)
+  let discoveredRepos: DiscoveredRepo[] = [];
+  let activeRepoPath: string | null = null;
+
+  // Map of repo path -> GitService for quick lookup
+  const gitServiceMap = new Map<string, GitService>();
+
   const allGitServices: GitService[] = [];
   for (const root of allWorkspaceRoots) {
-    allGitServices.push(new GitService(root));
+    const svc = new GitService(root);
+    allGitServices.push(svc);
+    gitServiceMap.set(root, svc);
+  }
+
+  // Async: discover nested git repos
+  if (workspaceRoot) {
+    void discoverGitRepos(workspaceRoot).then((repos) => {
+      outputChannel.appendLine(
+        `[Repo Discovery] found ${repos.length} repos: ${repos.map((r) => r.path).join(", ")}`,
+      );
+      if (repos.length > 0) {
+        discoveredRepos = repos;
+        // Create GitService for each discovered repo that isn't already in the map
+        for (const repo of repos) {
+          if (!gitServiceMap.has(repo.path)) {
+            const svc = new GitService(repo.path);
+            gitServiceMap.set(repo.path, svc);
+            allGitServices.push(svc);
+            outputChannel.appendLine(
+              `[Repo Discovery] added GitService for: ${repo.path}`,
+            );
+          }
+        }
+        // If root itself is not a git repo, use the first discovered repo
+        if (!gitService && repos.length > 0) {
+          gitService = gitServiceMap.get(repos[0].path) ?? null;
+          activeRepoPath = repos[0].path;
+          messageRouter.broadcastEvent("reposDiscovered", {
+            repos: discoveredRepos.map((r) => ({
+              name: r.name,
+              path: r.relativePath,
+            })),
+          });
+        }
+      }
+    });
   }
 
   if (workspaceRoot) {
-    gitService = allGitServices[0] ?? new GitService(workspaceRoot);
+    gitService =
+      gitService ?? allGitServices[0] ?? new GitService(workspaceRoot);
+    if (gitService) {
+      activeRepoPath = workspaceRoot;
+    }
 
     // Register virtual document provider for git file content
-    const contentProvider = new GitContentProvider(gitService);
+    // Use a getter so it always uses the current active gitService (supports repo switching)
+    const contentProvider = new GitContentProvider(() => gitService);
     contentProvider.setExternalContentMap(shelfDiffContent);
     context.subscriptions.push(
       vscode.workspace.registerTextDocumentContentProvider(
@@ -198,6 +250,16 @@ export function activate(context: vscode.ExtensionContext) {
         });
       },
     ),
+    vscode.commands.registerCommand(
+      "git-brains.showBlameCommit",
+      async (hash: string) => {
+        if (!hash) return;
+        // Ensure the Git Log panel is visible
+        await vscode.commands.executeCommand("git-brains.gitLog.focus");
+        // Tell the webview to navigate to and select this commit
+        messageRouter.broadcastEvent("navigateToCommit", { hash });
+      },
+    ),
     vscode.commands.registerCommand("git-brains.editSource", async () => {
       const editor = vscode.window.activeTextEditor;
       if (!editor) return;
@@ -219,7 +281,7 @@ export function activate(context: vscode.ExtensionContext) {
           : uri.path;
         if (relativePath && workspaceRoot) {
           filePath = vscode.Uri.joinPath(
-            vscode.Uri.file(workspaceRoot),
+            vscode.Uri.file(gitService!.cwd),
             relativePath,
           ).fsPath;
         }
@@ -230,7 +292,7 @@ export function activate(context: vscode.ExtensionContext) {
           : uri.path;
         if (relativePath && workspaceRoot) {
           filePath = vscode.Uri.joinPath(
-            vscode.Uri.file(workspaceRoot),
+            vscode.Uri.file(gitService!.cwd),
             relativePath,
           ).fsPath;
         }
@@ -434,7 +496,7 @@ export function activate(context: vscode.ExtensionContext) {
     if (!gitService) return NOT_GIT_REPO;
     const action = params.action as "continue" | "abort" | "skip";
     return withProgress(messageRouter, async () => {
-      await gitService.cherryPickAction(action);
+      await gitService!.cherryPickAction(action);
       messageRouter.broadcastEvent("gitStateChanged", { scope: "all" });
       messageRouter.broadcastEvent("commitStateChanged", {});
       return { success: true };
@@ -450,7 +512,7 @@ export function activate(context: vscode.ExtensionContext) {
     if (!gitService) return NOT_GIT_REPO;
     const action = params.action as "continue" | "abort" | "skip";
     return withProgress(messageRouter, async () => {
-      await gitService.rebaseAction(action);
+      await gitService!.rebaseAction(action);
       messageRouter.broadcastEvent("gitStateChanged", { scope: "all" });
       messageRouter.broadcastEvent("commitStateChanged", {});
       return { success: true };
@@ -462,9 +524,9 @@ export function activate(context: vscode.ExtensionContext) {
     const action = params.action as "continue" | "abort";
     return withProgress(messageRouter, async () => {
       if (action === "continue") {
-        await gitService.mergeContinue();
+        await gitService!.mergeContinue();
       } else {
-        await gitService.mergeAbort();
+        await gitService!.mergeAbort();
       }
       messageRouter.broadcastEvent("gitStateChanged", { scope: "all" });
       messageRouter.broadcastEvent("commitStateChanged", {});
@@ -542,8 +604,10 @@ export function activate(context: vscode.ExtensionContext) {
 
   messageRouter.handle("openFile", async (params) => {
     const filePath = params.filePath as string;
-    const absPath = workspaceRoot
-      ? vscode.Uri.joinPath(vscode.Uri.file(workspaceRoot), filePath)
+    // Use the active gitService's cwd for correct file resolution
+    const basePath = gitService?.cwd ?? activeRepoPath ?? workspaceRoot;
+    const absPath = basePath
+      ? vscode.Uri.joinPath(vscode.Uri.file(basePath), filePath)
       : vscode.Uri.file(filePath);
     try {
       await vscode.commands.executeCommand("vscode.open", absPath);
@@ -593,7 +657,7 @@ export function activate(context: vscode.ExtensionContext) {
     if (!gitService) return NOT_GIT_REPO;
     const branchName = params.branchName as string;
     return withProgress(messageRouter, async () => {
-      await gitService.checkout(branchName);
+      await gitService!.checkout(branchName);
       messageRouter.broadcastEvent("gitStateChanged", { scope: "all" });
       return { success: true };
     });
@@ -640,7 +704,7 @@ export function activate(context: vscode.ExtensionContext) {
     if (!gitService) return NOT_GIT_REPO;
     const branchName = params.branchName as string;
     return withProgress(messageRouter, async () => {
-      await gitService.merge(branchName);
+      await gitService!.merge(branchName);
       messageRouter.broadcastEvent("gitStateChanged", { scope: "all" });
       return { success: true };
     });
@@ -650,7 +714,7 @@ export function activate(context: vscode.ExtensionContext) {
     if (!gitService) return NOT_GIT_REPO;
     const onto = params.onto as string;
     return withProgress(messageRouter, async () => {
-      await gitService.rebase(onto);
+      await gitService!.rebase(onto);
       messageRouter.broadcastEvent("gitStateChanged", { scope: "all" });
       return { success: true };
     });
@@ -661,7 +725,7 @@ export function activate(context: vscode.ExtensionContext) {
     const branchToCheckout = params.branchToCheckout as string;
     const rebaseOnto = params.rebaseOnto as string;
     return withProgress(messageRouter, async () => {
-      await gitService.checkoutAndRebase(branchToCheckout, rebaseOnto);
+      await gitService!.checkoutAndRebase(branchToCheckout, rebaseOnto);
       messageRouter.broadcastEvent("gitStateChanged", { scope: "all" });
       return { success: true };
     });
@@ -672,7 +736,7 @@ export function activate(context: vscode.ExtensionContext) {
     const branchName = params.branchName as string;
     const force = params.force as boolean | undefined;
     return withProgress(messageRouter, async () => {
-      await gitService.push(branchName, force ?? false);
+      await gitService!.push(branchName, force ?? false);
       messageRouter.broadcastEvent("gitStateChanged", { scope: "all" });
       return { success: true };
     });
@@ -693,7 +757,7 @@ export function activate(context: vscode.ExtensionContext) {
     const remote = (params.remote as string) || "origin";
     const targetBranch = (params.targetBranch as string) || branchName;
     return withProgress(messageRouter, async () => {
-      const output = await gitService.push(
+      const output = await gitService!.push(
         branchName,
         force ?? false,
         remote,
@@ -750,7 +814,7 @@ export function activate(context: vscode.ExtensionContext) {
           if (deleteLocalCopies) {
             // Delete untracked/added file from filesystem
             const absPath = vscode.Uri.joinPath(
-              vscode.Uri.file(workspaceRoot!),
+              vscode.Uri.file(gitService!.cwd),
               filePath,
             );
             await vscode.workspace.fs.delete(absPath);
@@ -780,7 +844,7 @@ export function activate(context: vscode.ExtensionContext) {
     if (!gitService) return NOT_GIT_REPO;
     const branchName = params.branchName as string | undefined;
     return withProgress(messageRouter, async () => {
-      await gitService.pull(branchName);
+      await gitService!.pull(branchName);
       messageRouter.broadcastEvent("gitStateChanged", { scope: "all" });
       return { success: true };
     });
@@ -790,7 +854,7 @@ export function activate(context: vscode.ExtensionContext) {
     if (!gitService) return NOT_GIT_REPO;
     const branchName = params.branchName as string | undefined;
     return withProgress(messageRouter, async () => {
-      await gitService.pullRebase(branchName);
+      await gitService!.pullRebase(branchName);
       messageRouter.broadcastEvent("gitStateChanged", { scope: "all" });
       return { success: true };
     });
@@ -800,7 +864,7 @@ export function activate(context: vscode.ExtensionContext) {
     if (!gitService) return NOT_GIT_REPO;
     const branchName = params.branchName as string | undefined;
     return withProgress(messageRouter, async () => {
-      await gitService.pull(branchName);
+      await gitService!.pull(branchName);
       messageRouter.broadcastEvent("gitStateChanged", { scope: "all" });
       return { success: true };
     });
@@ -809,7 +873,7 @@ export function activate(context: vscode.ExtensionContext) {
   messageRouter.handle("fetchBranch", async () => {
     if (!gitService) return NOT_GIT_REPO;
     return withProgress(messageRouter, async () => {
-      await gitService.fetch();
+      await gitService!.fetch();
       messageRouter.broadcastEvent("gitStateChanged", { scope: "all" });
       return { success: true };
     });
@@ -819,7 +883,7 @@ export function activate(context: vscode.ExtensionContext) {
     if (!gitService) return NOT_GIT_REPO;
     const hash = params.hash as string;
     return withProgress(messageRouter, async () => {
-      await gitService.cherryPick(hash);
+      await gitService!.cherryPick(hash);
       messageRouter.broadcastEvent("gitStateChanged", { scope: "all" });
       return { success: true };
     });
@@ -857,7 +921,7 @@ export function activate(context: vscode.ExtensionContext) {
     const hash = params.hash as string;
     const mode = params.mode as "soft" | "mixed" | "hard";
     return withProgress(messageRouter, async () => {
-      await gitService.resetToCommit(hash, mode);
+      await gitService!.resetToCommit(hash, mode);
       messageRouter.broadcastEvent("gitStateChanged", { scope: "all" });
       return { success: true };
     });
@@ -867,7 +931,7 @@ export function activate(context: vscode.ExtensionContext) {
     if (!gitService) return NOT_GIT_REPO;
     const hash = params.hash as string;
     return withProgress(messageRouter, async () => {
-      await gitService.revertCommit(hash);
+      await gitService!.revertCommit(hash);
       messageRouter.broadcastEvent("gitStateChanged", { scope: "all" });
       return { success: true };
     });
@@ -904,7 +968,7 @@ export function activate(context: vscode.ExtensionContext) {
     // Proceed with progress and 30-second timeout
     return withProgress(messageRouter, async () => {
       const timeoutMs = 30_000;
-      const dropPromise = gitService.dropCommit(hash);
+      const dropPromise = gitService!.dropCommit(hash);
       const timeoutPromise = new Promise<never>((_, reject) =>
         setTimeout(
           () => reject(new Error(t("extension.operationTimedOut"))),
@@ -961,22 +1025,60 @@ export function activate(context: vscode.ExtensionContext) {
     return { success: true };
   });
 
-  // ─── Commit Panel Handlers ───────────────────────────────────────
+  // ─── Repo Selection Handlers (for nested repo support) ──────────
+  messageRouter.handle("getRepos", async () => {
+    return discoveredRepos.map((r) => ({
+      name: r.name,
+      path: r.relativePath,
+      fullPath: r.path,
+      isActive: r.path === activeRepoPath,
+    }));
+  });
+
+  messageRouter.handle("switchRepo", async (params) => {
+    const repoPath = params.repoPath as string;
+    // repoPath is relative; find the matching discovered repo
+    const repo = discoveredRepos.find((r) => r.relativePath === repoPath);
+    if (!repo) return { success: false, error: t("extension.repoNotFound") };
+
+    const svc = gitServiceMap.get(repo.path);
+    if (!svc)
+      return { success: false, error: t("extension.gitServiceNotFound") };
+
+    // Switch the active git service
+    gitService = svc;
+    activeRepoPath = repo.path;
+
+    // Update diffManager to use the new service
+    diffManager = new DiffEditorManager(svc);
+
+    // Content provider already uses dynamic getter, no need to recreate
+    // Just invalidate cache
+
+    // Invalidate cache and refresh
+    svc.cache.invalidate();
+
+    // Notify webviews to refresh
+    messageRouter.broadcastEvent("repoChanged", {
+      repoPath: repo.relativePath,
+    });
+    messageRouter.broadcastEvent("gitStateChanged", { scope: "all" });
+    messageRouter.broadcastEvent("commitStateChanged", {});
+
+    return { success: true };
+  });
+
+  // ─── Commit Panel Handlers ─────────────────────────────────────────────
 
   messageRouter.handle("getWorkingTreeChanges", async () => {
-    if (allGitServices.length === 0) return NOT_GIT_REPO;
+    if (!gitService) return NOT_GIT_REPO;
 
-    // Aggregate changes from all workspace folders
-    const allChanges: import("./git/types").WorkingTreeFile[] = [];
-    for (const svc of allGitServices) {
-      try {
-        const changes = await svc.getWorkingTreeChanges();
-        allChanges.push(...changes);
-      } catch {
-        // Skip folders that aren't git repos
-      }
+    // Only return changes from the active repo
+    try {
+      return await gitService.getWorkingTreeChanges();
+    } catch {
+      return [];
     }
-    return allChanges;
   });
 
   messageRouter.handle("unstageFile", async (params) => {
@@ -1028,7 +1130,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     return withProgress(messageRouter, async () => {
-      await gitService.commitAndPush(message, amend ?? false);
+      await gitService!.commitAndPush(message, amend ?? false);
       messageRouter.broadcastEvent("commitStateChanged", {});
       messageRouter.broadcastEvent("gitStateChanged", { scope: "all" });
       return { success: true };
@@ -1096,9 +1198,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   messageRouter.handle("revealInSystemExplorer", async (params) => {
     const filePath = params.filePath as string;
-    if (!filePath || !workspaceRoot) return { success: false };
+    if (!filePath || !gitService) return { success: false };
     const absPath = vscode.Uri.joinPath(
-      vscode.Uri.file(workspaceRoot),
+      vscode.Uri.file(gitService.cwd),
       filePath,
     );
     await vscode.commands.executeCommand("revealFileInOS", absPath);
@@ -1106,7 +1208,7 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   messageRouter.handle("deleteFiles", async (params) => {
-    if (!workspaceRoot) return NOT_GIT_REPO;
+    if (!gitService) return NOT_GIT_REPO;
     const filePaths = params.filePaths as string[];
     if (!filePaths || filePaths.length === 0) return { success: false };
 
@@ -1125,7 +1227,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     for (const filePath of filePaths) {
       const fullPath = vscode.Uri.joinPath(
-        vscode.Uri.file(workspaceRoot),
+        vscode.Uri.file(gitService!.cwd),
         filePath,
       );
       try {
@@ -1139,12 +1241,12 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   messageRouter.handle("showDiffForWorkingFile", async (params) => {
-    if (!gitService || !workspaceRoot) return NOT_GIT_REPO;
+    if (!gitService) return NOT_GIT_REPO;
     const filePath = params.filePath as string;
     const staged = params.staged as boolean | undefined;
 
     const rightUri = vscode.Uri.joinPath(
-      vscode.Uri.file(workspaceRoot),
+      vscode.Uri.file(gitService!.cwd),
       filePath,
     );
 
@@ -1215,7 +1317,7 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   messageRouter.handle("showShelfFileDiff", async (params) => {
-    if (!gitService || !workspaceRoot) return NOT_GIT_REPO;
+    if (!gitService) return NOT_GIT_REPO;
     const stashId = params.stashId as string;
     const filePath = params.filePath as string;
 
@@ -1236,7 +1338,7 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   messageRouter.handle("unshelveFile", async (params) => {
-    if (!gitService || !workspaceRoot) return NOT_GIT_REPO;
+    if (!gitService) return NOT_GIT_REPO;
     const stashId = params.stashId as string;
     const filePath = params.filePath as string;
 
@@ -1294,11 +1396,11 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   messageRouter.handle("showIdeaShelfFileDiff", async (params) => {
-    if (!gitService || !workspaceRoot) return NOT_GIT_REPO;
+    if (!gitService) return NOT_GIT_REPO;
     const shelfName = params.shelfName as string;
     const filePath = params.filePath as string;
 
-    const patchFile = `${workspaceRoot}/.idea/shelf/${shelfName}/shelved.patch`;
+    const patchFile = `${gitService!.cwd}/.idea/shelf/${shelfName}/shelved.patch`;
     try {
       const patchContent = await nodefs.readFile(patchFile, "utf-8");
 
@@ -1340,13 +1442,13 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   messageRouter.handle("createPatchFromShelf", async (params) => {
-    if (!gitService || !workspaceRoot) return NOT_GIT_REPO;
+    if (!gitService) return NOT_GIT_REPO;
     const shelfName = params.shelfName as string;
-    const patchFile = `${workspaceRoot}/.idea/shelf/${shelfName}/shelved.patch`;
+    const patchFile = `${gitService!.cwd}/.idea/shelf/${shelfName}/shelved.patch`;
 
     // Ask user where to save the patch
     const saveUri = await vscode.window.showSaveDialog({
-      defaultUri: vscode.Uri.file(`${workspaceRoot}/${shelfName}.patch`),
+      defaultUri: vscode.Uri.file(`${gitService!.cwd}/${shelfName}.patch`),
       filters: {
         [t("extension.patchFilesFilter")]: ["patch", "diff"],
         [t("extension.allFilesFilter")]: ["*"],
@@ -1373,9 +1475,9 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   messageRouter.handle("copyShelfPatchToClipboard", async (params) => {
-    if (!gitService || !workspaceRoot) return NOT_GIT_REPO;
+    if (!gitService) return NOT_GIT_REPO;
     const shelfName = params.shelfName as string;
-    const patchFile = `${workspaceRoot}/.idea/shelf/${shelfName}/shelved.patch`;
+    const patchFile = `${gitService!.cwd}/.idea/shelf/${shelfName}/shelved.patch`;
 
     try {
       const patchContent = await nodefs.readFile(patchFile, "utf-8");
@@ -1392,7 +1494,7 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   messageRouter.handle("importPatches", async () => {
-    if (!gitService || !workspaceRoot) return NOT_GIT_REPO;
+    if (!gitService) return NOT_GIT_REPO;
 
     // Ask user to select patch files
     const fileUris = await vscode.window.showOpenDialog({
@@ -1431,7 +1533,7 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   messageRouter.handle("importPatchFromClipboard", async () => {
-    if (!gitService || !workspaceRoot) return NOT_GIT_REPO;
+    if (!gitService) return NOT_GIT_REPO;
 
     try {
       const clipboardContent = await vscode.env.clipboard.readText();
@@ -1476,9 +1578,9 @@ export function activate(context: vscode.ExtensionContext) {
     const force = params.force as boolean | undefined;
     if (!name) return { success: false };
     return withProgress(messageRouter, async () => {
-      await gitService.createBranch(name, "HEAD", force ?? false);
+      await gitService!.createBranch(name, "HEAD", force ?? false);
       if (checkout) {
-        await gitService.checkout(name);
+        await gitService!.checkout(name);
       }
       messageRouter.broadcastEvent("gitStateChanged", { scope: "all" });
       return { success: true };
@@ -1496,7 +1598,7 @@ export function activate(context: vscode.ExtensionContext) {
     );
     if (confirm !== t("extension.delete")) return { success: false };
     return withProgress(messageRouter, async () => {
-      await gitService.deleteBranch(branchName);
+      await gitService!.deleteBranch(branchName);
       messageRouter.broadcastEvent("gitStateChanged", { scope: "all" });
       return { success: true };
     });
@@ -1530,8 +1632,8 @@ export function activate(context: vscode.ExtensionContext) {
   messageRouter.handle("fetchAll", async () => {
     if (!gitService) return NOT_GIT_REPO;
     return withProgress(messageRouter, async () => {
-      await gitService.fetch();
-      gitService.invalidateCache();
+      await gitService!.fetch();
+      gitService!.invalidateCache();
       messageRouter.broadcastEvent("gitStateChanged", { scope: "all" });
       return { success: true };
     });
@@ -1581,6 +1683,34 @@ export function activate(context: vscode.ExtensionContext) {
     );
     context.subscriptions.push(watcher);
   }
+
+  // 8. GitBlameProvider — inline blame decorations (JetBrains-style)
+  // Use a getter that finds the correct git service based on the file path,
+  // not just the active repo. This supports editing files in sub-repos.
+  const blameGetter = (filePath?: string) => {
+    if (!filePath) {
+      outputChannel.appendLine(
+        `[Blame Getter] no filePath, returning active gitService: ${gitService?.cwd ?? "null"}`,
+      );
+      return gitService;
+    }
+    // Find the git service whose cwd contains this file
+    let best: GitService | null = null;
+    let bestLen = 0;
+    for (const svc of allGitServices) {
+      if (filePath.startsWith(svc.cwd) && svc.cwd.length > bestLen) {
+        best = svc;
+        bestLen = svc.cwd.length;
+      }
+    }
+    const result = best ?? gitService;
+    outputChannel.appendLine(
+      `[Blame Getter] file: ${filePath} | allGitServices: ${allGitServices.length} | matched: ${best?.cwd ?? "none"} | fallback: ${gitService?.cwd ?? "null"} | result: ${result?.cwd ?? "null"}`,
+    );
+    return result;
+  };
+  const blameProvider = new GitBlameProvider(blameGetter, outputChannel);
+  context.subscriptions.push(blameProvider);
 
   // 8. Status bar item to quickly open the panel
   const statusBarItem = vscode.window.createStatusBarItem(

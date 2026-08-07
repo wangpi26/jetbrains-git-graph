@@ -23,7 +23,7 @@ export function Toolbar({
 
   const handleExpandAll = useCallback(() => {
     // Expand file groups
-    const groups = ["changes", "staged", "unversioned"];
+    const groups = ["changes", "staged"];
     for (const g of groups) {
       if (!expandedGroups.has(g)) {
         toggleGroup(g);
@@ -35,7 +35,7 @@ export function Toolbar({
 
   const handleCollapseAll = useCallback(() => {
     // Collapse file groups
-    const groups = ["changes", "staged", "unversioned"];
+    const groups = ["changes", "staged"];
     for (const g of groups) {
       if (expandedGroups.has(g)) {
         toggleGroup(g);
@@ -145,12 +145,7 @@ export function Toolbar({
 /* ─── View Options Menu ──────────────────────────────────────────── */
 
 function ViewOptionsMenu({ onClose }: { onClose: () => void }) {
-  const {
-    groupByDirectory,
-    toggleGroupByDirectory,
-    showUnversioned,
-    toggleShowUnversioned,
-  } = useCommitStore();
+  const { groupByDirectory, toggleGroupByDirectory } = useCommitStore();
 
   return (
     <>
@@ -188,23 +183,6 @@ function ViewOptionsMenu({ onClose }: { onClose: () => void }) {
           </span>
           <span>{t("commitToolbar.directory")}</span>
           <span className="commit-context-menu-shortcut">^P</span>
-        </button>
-        <div className="commit-context-menu-separator" />
-        <div className="commit-context-menu-header">
-          {t("commitToolbar.show")}
-        </div>
-        <button
-          type="button"
-          className="commit-context-menu-item"
-          onClick={() => {
-            toggleShowUnversioned();
-            onClose();
-          }}
-        >
-          <span className="commit-context-menu-icon">
-            {showUnversioned && <CheckIcon />}
-          </span>
-          <span>{t("commitToolbar.unversionedFiles")}</span>
         </button>
       </div>
     </>

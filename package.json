@@ -1,14 +1,14 @@
 {
-  "name": "idea-like-git-graph",
-  "displayName": "JetBrains Git - IntelliJ IDEA Git Graph, Commit & Shelf for VS Code",
+  "name": "jetgit",
+  "displayName": "JetGit - IntelliJ IDEA Git Graph, Commit & Shelf",
   "publisher": "ziop",
-  "description": "Bring IntelliJ IDEA / JetBrains Git experience to VS Code & Cursor: Git graph visualization, IDEA-style commit panel with shelf/stash, branch management, cherry-pick, rebase, merge, 3-way merge editor, and context menus. The best JetBrains Git alternative for Visual Studio Code.",
-  "version": "0.4.17",
+  "description": "IntelliJ IDEA Git experience for VS Code & Cursor. Git graph visualization, IDEA-style commit panel with shelf/stash, branch management, cherry-pick, rebase, merge, 3-way merge conflict editor, nested git repo auto-discovery, hover action buttons, and full Chinese localization. The best JetBrains Git alternative.",
+  "version": "0.5.1",
   "license": "MIT",
   "icon": "images/icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/aotemj/jetbrains-git-graph"
+    "url": "https://github.com/wangpi26/jetbrains-git-graph"
   },
   "engines": {
     "vscode": "^1.85.0"
@@ -31,13 +31,22 @@
     "cherry-pick",
     "rebase",
     "git log",
-    "context menu",
     "diff",
     "3-way merge",
     "webstorm",
     "pycharm",
     "goland",
-    "rider"
+    "rider",
+    "cursor",
+    "nested repo",
+    "submodule",
+    "chinese",
+    "中文",
+    "scm",
+    "git workflow",
+    "git history",
+    "code review",
+    "blame"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -156,6 +165,11 @@
         "title": "%command.git-brains.editSource.title%",
         "icon": "$(go-to-file)",
         "category": "JetGit"
+      },
+      {
+        "command": "git-brains.showBlameCommit",
+        "title": "%command.git-brains.showBlameCommit.title%",
+        "category": "JetGit"
       }
     ],
     "menus": {
@@ -269,5 +283,14 @@
   "packageManager": "pnpm@10.18.2+sha512.9fb969fa749b3ade6035e0f109f0b8a60b5d08a1a87fdf72e337da90dcc93336e2280ca4e44f2358a649b83c17959e9993e777c2080879f3801e6f0d999ad3dd",
   "dependencies": {
     "node-diff3": "^3.2.0"
-  }
+  },
+  "author": {
+    "name": "ziop",
+    "email": "wangpi26@qq.com"
+  },
+  "homepage": "https://github.com/wangpi26/jetbrains-git-graph",
+  "bugs": {
+    "url": "https://github.com/wangpi26/jetbrains-git-graph/issues"
+  },
+  "preview": true
 }

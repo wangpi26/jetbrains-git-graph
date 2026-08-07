@@ -4,7 +4,7 @@ export const zhCN: Record<string, string> = {
   "extension.noWorkspace": "JetGit: 没有打开的工作区。",
   "extension.unableToLocateConflictFile": "无法从 SCM 项定位冲突文件。",
   "extension.sourceFileNotExists": "源文件在工作目录中不存在。",
-  "extension.unsavedMergeChanges": "您有未保存的合并更改。是否丢弃？",
+  "extension.unsavedMergeChanges": "您有未版本控制保存的合并更改。是否丢弃？",
   "extension.discard": "丢弃",
   "extension.rollbackFile": '回滚 "{filePath}" 的更改？此操作不可撤销。',
   "extension.rollbackFiles": "回滚 {count} 个文件的更改？此操作不可撤销。",
@@ -56,4 +56,8 @@ export const zhCN: Record<string, string> = {
   "extension.shelvedDiff": "{filePath} (搁置: {stashId})",
   "extension.shelvedInShelf": "{fileName} (搁置于 {shelfName})",
   "extension.compareBranches": "{currentBranch} ↔ {branchName}",
+  "extension.repoNotFound": "未找到仓库",
+  "extension.gitServiceNotFound": "未找到 Git 服务",
+  "blame.viewCommit": "查看提交",
+  "blame.viewInGitLog": "在 Git 日志中查看",
 };

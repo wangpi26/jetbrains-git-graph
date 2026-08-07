@@ -29,36 +29,15 @@ export class CommitViewProvider implements vscode.WebviewViewProvider {
     const routerDisposable = this.messageRouter.registerWebview(webview);
     webviewView.onDidDispose(() => routerDisposable.dispose());
 
-    // First time opening: focus git log panel after a delay
-    setTimeout(() => {
+    // Refresh data when commit panel becomes visible (without auto-focusing Git Log)
+    webviewView.onDidChangeVisibility(() => {
       if (webviewView.visible) {
-        void vscode.commands.executeCommand("git-brains.gitLog.focus");
+        // Invalidate all git caches to ensure fresh data
         for (const cache of this.caches) {
           cache.invalidate();
         }
         this.messageRouter.broadcastEvent("commitStateChanged", {});
         this.messageRouter.broadcastEvent("gitStateChanged", { scope: "all" });
-      }
-    }, 200);
-
-    // When commit panel becomes visible, also show the Git Log panel and refresh both
-    // When hidden (clicked again to collapse), hide the Git Log panel too
-    webviewView.onDidChangeVisibility(() => {
-      if (webviewView.visible) {
-        // Small delay to ensure panels are ready
-        setTimeout(() => {
-          void vscode.commands.executeCommand("git-brains.gitLog.focus");
-          // Invalidate all git caches to ensure fresh data
-          for (const cache of this.caches) {
-            cache.invalidate();
-          }
-          this.messageRouter.broadcastEvent("commitStateChanged", {});
-          this.messageRouter.broadcastEvent("gitStateChanged", {
-            scope: "all",
-          });
-        }, 100);
-      } else {
-        void vscode.commands.executeCommand("workbench.action.closePanel");
       }
     });
   }

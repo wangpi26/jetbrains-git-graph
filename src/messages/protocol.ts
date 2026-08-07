@@ -121,7 +121,10 @@ export type EventType =
   | "operationStart"
   | "operationEnd"
   | "commitStateChanged"
-  | "rollbackPanelInit";
+  | "rollbackPanelInit"
+  | "reposDiscovered"
+  | "repoChanged"
+  | "navigateToCommit";
 
 export interface RemoteBranchGroup {
   remote: string;

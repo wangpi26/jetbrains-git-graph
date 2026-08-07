@@ -278,6 +278,14 @@ export const en: Record<string, string> = {
   "commitTab.commit": "Commit",
   "commitTab.shelf": "Shelf",
   "commitTab.stash": "Stash",
+  // File item action buttons
+  "fileItem.stageChanges": "Stage Changes",
+  "fileItem.unstageChanges": "Unstage Changes",
+  "fileItem.openFile": "Open File",
+
+  // Repo selector
+  "panel.toolbar.selectRepo": "Select Repo",
+
   // Commit buttons
   "commitButton.commit": "Commit",
   "commitButton.commitAndPush": "Commit and Push...",

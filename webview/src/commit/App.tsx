@@ -4,6 +4,7 @@ import { Tooltip } from "../shared/components/Tooltip";
 import { t } from "../shared/i18n";
 import "../shared/components/Tooltip.css";
 import { useCommitStore } from "../shared/store/commit-store";
+import { CommitMessageArea } from "./components/CommitMessageArea";
 import { CommitTab } from "./components/CommitTab";
 import { IdeaShelfTab } from "./components/IdeaShelfTab";
 import { ShelfTab } from "./components/ShelfTab";
@@ -107,24 +108,17 @@ function RebaseBanner() {
           }}
           className="rebase-action-btn rebase-continue"
         >
-          {/* JetBrains official expui double chevron >> icon */}
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path
               d="M2.5 11.5L6 8L2.5 4.5"
-              stroke="#ffffff"
+              stroke="#fff"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
             <path
               d="M8.5 11.5L12 8L8.5 4.5"
-              stroke="#ffffff"
+              stroke="#fff"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -146,17 +140,10 @@ function RebaseBanner() {
           }}
           className="rebase-action-btn rebase-abort"
         >
-          {/* JetBrains official expui/vcs/abort × icon */}
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path
               d="M4 12L12 4M12 12L4 4"
-              stroke="#ffffff"
+              stroke="#fff"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -173,7 +160,6 @@ interface MergeStateInfo {
   mergeHead?: string;
   mergeMsg?: string;
 }
-
 interface CherryPickStateInfo {
   isCherryPicking: boolean;
   cherryPickHead?: string;
@@ -184,37 +170,33 @@ function CherryPickBanner() {
     isCherryPicking: false,
   });
   const [loading, setLoading] = useState(false);
-
   const fetchState = useCallback(async () => {
     try {
-      const result = (await bridge.request(
-        "getCherryPickState",
-      )) as CherryPickStateInfo;
-      setState(result);
+      setState(
+        (await bridge.request("getCherryPickState")) as CherryPickStateInfo,
+      );
     } catch {
       setState({ isCherryPicking: false });
     }
   }, []);
-
   useEffect(() => {
     fetchState();
     const unsub = bridge.onEvent((event) => {
-      if (event === "gitStateChanged" || event === "commitStateChanged") {
+      if (event === "gitStateChanged" || event === "commitStateChanged")
         fetchState();
-      }
     });
     return unsub;
   }, [fetchState]);
-
   const handleAction = useCallback(
     async (action: "continue" | "abort" | "skip") => {
       setLoading(true);
       try {
         await bridge.request("cherryPickAction", { action });
       } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err);
         bridge
-          .request("showErrorNotification", { message: msg })
+          .request("showErrorNotification", {
+            message: err instanceof Error ? err.message : String(err),
+          })
           .catch(() => {});
       } finally {
         setLoading(false);
@@ -223,16 +205,13 @@ function CherryPickBanner() {
     },
     [fetchState],
   );
-
   if (!state.isCherryPicking) return null;
-
   const shortHash = state.cherryPickHead
     ? state.cherryPickHead.substring(0, 7)
     : "";
   const label = shortHash
     ? t("status.cherryPicking", { hash: shortHash })
     : t("status.cherryPickingShort");
-
   return (
     <div
       style={{
@@ -265,23 +244,17 @@ function CherryPickBanner() {
           }}
           className="rebase-action-btn rebase-continue"
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path
               d="M2.5 11.5L6 8L2.5 4.5"
-              stroke="#ffffff"
+              stroke="#fff"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
             <path
               d="M8.5 11.5L12 8L8.5 4.5"
-              stroke="#ffffff"
+              stroke="#fff"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -304,16 +277,10 @@ function CherryPickBanner() {
           className="rebase-action-btn rebase-continue"
           style={{ background: "#fb8c00" }}
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path
               d="M5 4L11 8L5 12"
-              stroke="#ffffff"
+              stroke="#fff"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -335,16 +302,10 @@ function CherryPickBanner() {
           }}
           className="rebase-action-btn rebase-abort"
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path
               d="M4 12L12 4M12 12L4 4"
-              stroke="#ffffff"
+              stroke="#fff"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -359,73 +320,62 @@ function CherryPickBanner() {
 function MergeBanner() {
   const [state, setState] = useState<MergeStateInfo>({ isMerging: false });
   const [loading, setLoading] = useState(false);
-
   const fetchState = useCallback(async () => {
     try {
-      const result = (await bridge.request("getMergeState")) as MergeStateInfo;
-      setState(result);
+      setState((await bridge.request("getMergeState")) as MergeStateInfo);
     } catch {
       setState({ isMerging: false });
     }
   }, []);
-
   useEffect(() => {
     fetchState();
     const unsub = bridge.onEvent((event) => {
-      if (event === "gitStateChanged" || event === "commitStateChanged") {
+      if (event === "gitStateChanged" || event === "commitStateChanged")
         fetchState();
-      }
     });
     return unsub;
   }, [fetchState]);
-
   const handleContinue = useCallback(async () => {
     setLoading(true);
     try {
-      // Check if there are unresolved conflicts
       const conflicts = (await bridge.request("getConflictFiles")) as string[];
-      if (conflicts && conflicts.length > 0) {
-        // Open conflicts panel to let user resolve
-        await bridge.request("openConflictsPanel");
-      } else {
-        // All conflicts resolved, commit
-        await bridge.request("mergeAction", { action: "continue" });
-      }
+      if (conflicts?.length > 0) await bridge.request("openConflictsPanel");
+      else await bridge.request("mergeAction", { action: "continue" });
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      bridge.request("showErrorNotification", { message: msg }).catch(() => {});
+      bridge
+        .request("showErrorNotification", {
+          message: err instanceof Error ? err.message : String(err),
+        })
+        .catch(() => {});
     } finally {
       setLoading(false);
       fetchState();
     }
   }, [fetchState]);
-
   const handleAbort = useCallback(async () => {
     setLoading(true);
     try {
       await bridge.request("mergeAction", { action: "abort" });
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      bridge.request("showErrorNotification", { message: msg }).catch(() => {});
+      bridge
+        .request("showErrorNotification", {
+          message: err instanceof Error ? err.message : String(err),
+        })
+        .catch(() => {});
     } finally {
       setLoading(false);
       fetchState();
     }
   }, [fetchState]);
-
   if (!state.isMerging) return null;
-
-  // Parse branch name from merge message like "Merge branch 'feature' into main"
   let label = t("status.merging");
   if (state.mergeMsg) {
     const match = state.mergeMsg.match(
       /Merge (?:branch '([^']+)'|remote-tracking branch '([^']+)')/,
     );
-    if (match) {
+    if (match)
       label = t("status.mergingBranch", { branch: match[1] || match[2] });
-    }
   }
-
   return (
     <div
       style={{
@@ -457,23 +407,17 @@ function MergeBanner() {
           }}
           className="rebase-action-btn rebase-continue"
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path
               d="M2.5 11.5L6 8L2.5 4.5"
-              stroke="#ffffff"
+              stroke="#fff"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
             <path
               d="M8.5 11.5L12 8L8.5 4.5"
-              stroke="#ffffff"
+              stroke="#fff"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -495,16 +439,10 @@ function MergeBanner() {
           }}
           className="rebase-action-btn rebase-abort"
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path
               d="M4 12L12 4M12 12L4 4"
-              stroke="#ffffff"
+              stroke="#fff"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -516,56 +454,197 @@ function MergeBanner() {
   );
 }
 
+// ─── Collapsible Section ────────────────────────────────────────────
+function CollapsibleSection({
+  title,
+  count,
+  defaultExpanded = true,
+  children,
+}: {
+  title: string;
+  count?: number;
+  defaultExpanded?: boolean;
+  children: React.ReactNode;
+}) {
+  const [expanded, setExpanded] = useState(defaultExpanded);
+
+  return (
+    <div className="scm-section">
+      <div
+        className="scm-section-header"
+        onClick={() => setExpanded(!expanded)}
+      >
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 16 16"
+          fill="none"
+          style={{
+            transform: expanded ? "rotate(90deg)" : "none",
+            transition: "transform 0.1s",
+            flexShrink: 0,
+          }}
+        >
+          <path
+            d="M6 11.5L9.5 8L6 4.5"
+            stroke="currentColor"
+            strokeLinecap="round"
+          />
+        </svg>
+        <span className="scm-section-title">{title}</span>
+        {count !== undefined && (
+          <span className="scm-section-count">{count}</span>
+        )}
+      </div>
+      {expanded && <div className="scm-section-body">{children}</div>}
+    </div>
+  );
+}
+
+// ─── Repo Selector ──────────────────────────────────────────────────
+function RepoSelector() {
+  const repos = useCommitStore((s) => s.repos);
+  const activeRepoName = useCommitStore((s) => s.activeRepoName);
+  const switchRepo = useCommitStore((s) => s.switchRepo);
+  const [open, setOpen] = useState(false);
+
+  if (repos.length <= 1) return null;
+
+  return (
+    <div className="scm-repo-selector">
+      <button
+        type="button"
+        className="scm-repo-selector-btn"
+        onClick={() => setOpen(!open)}
+      >
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <path
+            d="M1.5 3.5C1.5 2.95 1.95 2.5 2.5 2.5H6.09c.27 0 .52.1.71.3l5.41 5.41c.39.39.39 1.02 0 1.41l-3.59 3.59c-.39.39-1.02.39-1.41 0L1.79 7.8a1 1 0 01-.29-.71V3.5z"
+            fill="var(--app-bg, #fff)"
+            stroke="currentColor"
+            strokeWidth="1.2"
+          />
+          <circle cx="5" cy="5" r="0.9" fill="currentColor" />
+        </svg>
+        <span>{activeRepoName || t("panel.toolbar.selectRepo")}</span>
+        <svg width="10" height="10" viewBox="0 0 16 16" fill="none">
+          <polyline
+            points="4,6 8,10 12,6"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+      {open && (
+        <>
+          <div
+            className="scm-repo-dropdown-backdrop"
+            onClick={() => setOpen(false)}
+          />
+          <div className="scm-repo-dropdown">
+            {repos.map((repo) => (
+              <button
+                key={repo.path}
+                type="button"
+                className={`scm-repo-dropdown-item ${repo.isActive ? "active" : ""}`}
+                onClick={() => {
+                  void switchRepo(repo.path);
+                  setOpen(false);
+                }}
+              >
+                {repo.path === "." ? repo.name : repo.path}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export function CommitApp() {
   const {
-    activeTab,
-    setActiveTab,
     loading,
     fetchChanges,
     fetchShelves,
     fetchIdeaShelves,
+    fetchRepos,
+    shelves,
+    ideaShelves,
+    changes,
   } = useCommitStore();
 
   useEffect(() => {
+    fetchRepos();
     fetchChanges();
     fetchShelves();
     fetchIdeaShelves();
-  }, [fetchChanges, fetchShelves, fetchIdeaShelves]);
+  }, [fetchChanges, fetchShelves, fetchIdeaShelves, fetchRepos]);
+
+  useEffect(() => {
+    const unsub = bridge.onEvent((event) => {
+      if (event === "reposDiscovered" || event === "repoChanged") {
+        fetchRepos();
+        fetchChanges();
+        fetchShelves();
+        fetchIdeaShelves();
+      }
+      if (event === "gitStateChanged" || event === "commitStateChanged") {
+        fetchChanges();
+        fetchShelves();
+        fetchIdeaShelves();
+      }
+    });
+    return unsub;
+  }, [fetchChanges, fetchShelves, fetchIdeaShelves, fetchRepos]);
+
+  const changesCount = changes.length;
+  const shelfCount = ideaShelves.length;
+  const stashCount = shelves.length;
 
   return (
-    <div className="commit-app">
-      <div className="commit-tabs">
-        <button
-          type="button"
-          className={`commit-tab ${activeTab === "commit" ? "active" : ""}`}
-          onClick={() => setActiveTab("commit")}
-        >
-          {t("commitTab.commit")}
-        </button>
-        <button
-          type="button"
-          className={`commit-tab ${activeTab === "shelf" ? "active" : ""}`}
-          onClick={() => setActiveTab("shelf")}
-        >
-          {t("commitTab.shelf")}
-        </button>
-        <button
-          type="button"
-          className={`commit-tab ${activeTab === "stash" ? "active" : ""}`}
-          onClick={() => setActiveTab("stash")}
-        >
-          {t("commitTab.stash")}
-        </button>
-      </div>
+    <div className="commit-app scm-app">
+      <RepoSelector />
       <RebaseBanner />
       <CherryPickBanner />
       <MergeBanner />
       <ProgressBar visible={loading} />
-      <div className="commit-content">
-        {activeTab === "commit" && <CommitTab />}
-        {activeTab === "shelf" && <IdeaShelfTab />}
-        {activeTab === "stash" && <ShelfTab />}
+
+      {/* Scrollable content: file groups + shelf + stash */}
+      <div className="scm-scroll-container">
+        <CollapsibleSection
+          title={t("commitTab.changes")}
+          count={changesCount}
+          defaultExpanded
+        >
+          <CommitTab />
+        </CollapsibleSection>
+
+        {shelfCount > 0 && (
+          <CollapsibleSection
+            title={t("commitTab.shelf")}
+            count={shelfCount}
+            defaultExpanded={false}
+          >
+            <IdeaShelfTab />
+          </CollapsibleSection>
+        )}
+
+        {stashCount > 0 && (
+          <CollapsibleSection
+            title={t("commitTab.stash")}
+            count={stashCount}
+            defaultExpanded={false}
+          >
+            <ShelfTab />
+          </CollapsibleSection>
+        )}
       </div>
+
+      {/* Fixed at bottom: commit message + buttons */}
+      <CommitMessageArea />
     </div>
   );
 }

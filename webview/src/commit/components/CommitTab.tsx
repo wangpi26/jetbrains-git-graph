@@ -6,7 +6,6 @@ import {
   type WorkingTreeFile,
 } from "../../shared/store/commit-store";
 import { CommitFileContextMenu } from "./CommitFileContextMenu";
-import { CommitMessageArea } from "./CommitMessageArea";
 import { FileItem } from "./FileItem";
 import { Toolbar } from "./Toolbar";
 
@@ -17,7 +16,6 @@ export function CommitTab() {
     highlightedFiles,
     expandedGroups,
     groupByDirectory,
-    showUnversioned,
     toggleGroup,
     toggleFileSelection,
     setFileKeys,
@@ -25,6 +23,10 @@ export function CommitTab() {
     showDiff,
     fetchChanges,
     ideaShelveChanges,
+    stageFile,
+    unstageFile,
+    stageAll,
+    unstageAll,
   } = useCommitStore();
 
   const [contextMenu, setContextMenu] = useState<{
@@ -41,31 +43,27 @@ export function CommitTab() {
   } | null>(null);
 
   // Group files: staged (Changes) vs unstaged/untracked (Unversioned Files)
-  const { stagedFiles, changedFiles, untrackedFiles, conflictedFiles } =
-    useMemo(() => {
-      const staged: WorkingTreeFile[] = [];
-      const changed: WorkingTreeFile[] = [];
-      const untracked: WorkingTreeFile[] = [];
-      const conflicted: WorkingTreeFile[] = [];
+  const { stagedFiles, changedFiles, conflictedFiles } = useMemo(() => {
+    const staged: WorkingTreeFile[] = [];
+    const changed: WorkingTreeFile[] = [];
+    const conflicted: WorkingTreeFile[] = [];
 
-      for (const file of changes) {
-        if (file.status === "conflicted") {
-          conflicted.push(file);
-        } else if (file.staged) {
-          staged.push(file);
-        } else if (file.status === "untracked") {
-          untracked.push(file);
-        } else {
-          changed.push(file);
-        }
+    for (const file of changes) {
+      if (file.status === "conflicted") {
+        conflicted.push(file);
+      } else if (file.staged) {
+        staged.push(file);
+      } else {
+        // Both modified and untracked files go into "Changes"
+        changed.push(file);
       }
-      return {
-        stagedFiles: staged,
-        changedFiles: changed,
-        untrackedFiles: untracked,
-        conflictedFiles: conflicted,
-      };
-    }, [changes]);
+    }
+    return {
+      stagedFiles: staged,
+      changedFiles: changed,
+      conflictedFiles: conflicted,
+    };
+  }, [changes]);
 
   const handleShelveSelected = useCallback(async () => {
     const selectedPaths = changes
@@ -106,7 +104,7 @@ export function CommitTab() {
   return (
     <div
       className="commit-tab-content"
-      style={{ display: "flex", flexDirection: "column", height: "100%" }}
+      style={{ display: "flex", flexDirection: "column" }}
     >
       <Toolbar
         onRefresh={() => {
@@ -153,6 +151,12 @@ export function CommitTab() {
             onShowDiff={showDiff}
             onContextMenu={handleContextMenu}
             onDirContextMenu={handleDirContextMenu}
+            onStage={(p) => void stageFile(p)}
+            onUnstage={(p) => void unstageFile(p)}
+            onOpenFile={(p) => void bridge.request("openFile", { filePath: p })}
+            onStageAll={() => void stageAll()}
+            onUnstageAll={() => void unstageAll()}
+            isStagedGroup={false}
             action={
               <span
                 className="commit-group-resolve-link"
@@ -167,26 +171,6 @@ export function CommitTab() {
                 Resolve
               </span>
             }
-          />
-        )}
-
-        {/* Changes (tracked, modified) */}
-        {changedFiles.length > 0 && (
-          <FileGroup
-            label={t("commitTab.changes")}
-            files={changedFiles}
-            count={changedFiles.length}
-            expanded={expandedGroups.has("changes")}
-            groupByDirectory={groupByDirectory}
-            onToggle={() => toggleGroup("changes")}
-            selectedFiles={selectedFiles}
-            highlightedFiles={highlightedFiles}
-            onToggleFile={toggleFileSelection}
-            onSetFileKeys={setFileKeys}
-            onHighlightFile={highlightFile}
-            onShowDiff={showDiff}
-            onContextMenu={handleContextMenu}
-            onDirContextMenu={handleDirContextMenu}
           />
         )}
 
@@ -207,18 +191,24 @@ export function CommitTab() {
             onShowDiff={showDiff}
             onContextMenu={handleContextMenu}
             onDirContextMenu={handleDirContextMenu}
+            onStage={(p) => void stageFile(p)}
+            onUnstage={(p) => void unstageFile(p)}
+            onOpenFile={(p) => void bridge.request("openFile", { filePath: p })}
+            onStageAll={() => void stageAll()}
+            onUnstageAll={() => void unstageAll()}
+            isStagedGroup
           />
         )}
 
-        {/* Unversioned Files */}
-        {showUnversioned && untrackedFiles.length > 0 && (
+        {/* Changes (tracked, modified) */}
+        {changedFiles.length > 0 && (
           <FileGroup
-            label={t("commitTab.unversionedFilesLabel")}
-            files={untrackedFiles}
-            count={untrackedFiles.length}
-            expanded={expandedGroups.has("unversioned")}
+            label={t("commitTab.changes")}
+            files={changedFiles}
+            count={changedFiles.length}
+            expanded={expandedGroups.has("changes")}
             groupByDirectory={groupByDirectory}
-            onToggle={() => toggleGroup("unversioned")}
+            onToggle={() => toggleGroup("changes")}
             selectedFiles={selectedFiles}
             highlightedFiles={highlightedFiles}
             onToggleFile={toggleFileSelection}
@@ -227,6 +217,12 @@ export function CommitTab() {
             onShowDiff={showDiff}
             onContextMenu={handleContextMenu}
             onDirContextMenu={handleDirContextMenu}
+            onStage={(p) => void stageFile(p)}
+            onUnstage={(p) => void unstageFile(p)}
+            onOpenFile={(p) => void bridge.request("openFile", { filePath: p })}
+            onStageAll={() => void stageAll()}
+            onUnstageAll={() => void unstageAll()}
+            isStagedGroup={false}
           />
         )}
 
@@ -234,8 +230,6 @@ export function CommitTab() {
           <div className="shelf-empty">{t("commitTab.noChanges")}</div>
         )}
       </div>
-
-      <CommitMessageArea />
 
       {contextMenu && (
         <CommitFileContextMenu
@@ -277,6 +271,12 @@ interface FileGroupProps {
     files: WorkingTreeFile[],
     dirName: string,
   ) => void;
+  onStage: (filePath: string) => void;
+  onUnstage: (filePath: string) => void;
+  onOpenFile: (filePath: string) => void;
+  onStageAll: () => void;
+  onUnstageAll: () => void;
+  isStagedGroup: boolean;
   action?: React.ReactNode;
 }
 
@@ -295,6 +295,12 @@ function FileGroup({
   onShowDiff,
   onContextMenu,
   onDirContextMenu,
+  onStage,
+  onUnstage,
+  onOpenFile,
+  onStageAll,
+  onUnstageAll,
+  isStagedGroup,
   action,
 }: FileGroupProps) {
   const allKeys = useMemo(
@@ -390,6 +396,35 @@ function FileGroup({
         <span className="commit-group-count">
           {count} {count === 1 ? "file" : "files"}
         </span>
+        <span className="commit-group-actions">
+          {isStagedGroup ? (
+            <button
+              type="button"
+              className="commit-file-action-btn"
+              title={t("fileItem.unstageChanges")}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onUnstageAll();
+              }}
+            >
+              <UnstageAllIcon />
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="commit-file-action-btn"
+              title={t("fileItem.stageChanges")}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onStageAll();
+              }}
+            >
+              <StageAllIcon />
+            </button>
+          )}
+        </span>
         {action}
       </div>
       {expanded && (
@@ -409,6 +444,9 @@ function FileGroup({
               onShowDiff={onShowDiff}
               onContextMenu={onContextMenu}
               onDirContextMenu={onDirContextMenu}
+              onStage={onStage}
+              onUnstage={onUnstage}
+              onOpenFile={onOpenFile}
             />
           ) : (
             files.map((file) => {
@@ -426,6 +464,9 @@ function FileGroup({
                     const mode = e.metaKey || e.ctrlKey ? "toggle" : "single";
                     onHighlightFile(key, mode);
                   }}
+                  onStage={() => onStage(file.path)}
+                  onUnstage={() => onUnstage(file.path)}
+                  onOpenFile={() => onOpenFile(file.path)}
                 />
               );
             })
@@ -509,6 +550,9 @@ function DirectoryTree({
   onShowDiff,
   onContextMenu,
   onDirContextMenu,
+  onStage,
+  onUnstage,
+  onOpenFile,
 }: {
   files: WorkingTreeFile[];
   selectedFiles: Set<string>;
@@ -523,6 +567,9 @@ function DirectoryTree({
     files: WorkingTreeFile[],
     dirName: string,
   ) => void;
+  onStage: (filePath: string) => void;
+  onUnstage: (filePath: string) => void;
+  onOpenFile: (filePath: string) => void;
 }) {
   const { collapsedDirs, toggleDir } = useCommitStore();
   const tree = useMemo(() => buildDirTree(files), [files]);
@@ -541,6 +588,9 @@ function DirectoryTree({
       onShowDiff={onShowDiff}
       onContextMenu={onContextMenu}
       onDirContextMenu={onDirContextMenu}
+      onStage={onStage}
+      onUnstage={onUnstage}
+      onOpenFile={onOpenFile}
     />
   );
 }
@@ -558,6 +608,9 @@ function DirNodeView({
   onShowDiff,
   onContextMenu,
   onDirContextMenu,
+  onStage,
+  onUnstage,
+  onOpenFile,
 }: {
   node: DirNode;
   depth: number;
@@ -575,6 +628,9 @@ function DirNodeView({
     files: WorkingTreeFile[],
     dirName: string,
   ) => void;
+  onStage: (filePath: string) => void;
+  onUnstage: (filePath: string) => void;
+  onOpenFile: (filePath: string) => void;
 }) {
   return (
     <>
@@ -630,6 +686,40 @@ function DirNodeView({
                   {countFiles(child)}{" "}
                   {countFiles(child) === 1 ? "file" : "files"}
                 </span>
+                <span className="commit-file-actions">
+                  {child.files.length > 0 &&
+                  child.files.every((f) => f.staged) ? (
+                    <button
+                      type="button"
+                      className="commit-file-action-btn"
+                      title={t("fileItem.unstageChanges")}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        for (const f of collectDirFiles(child)) {
+                          onUnstage(f.path);
+                        }
+                      }}
+                    >
+                      <UnstageMiniIcon />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="commit-file-action-btn"
+                      title={t("fileItem.stageChanges")}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        for (const f of collectDirFiles(child)) {
+                          if (!f.staged) onStage(f.path);
+                        }
+                      }}
+                    >
+                      <StageMiniIcon />
+                    </button>
+                  )}
+                </span>
               </div>
               {!isCollapsed && (
                 <DirNodeView
@@ -645,6 +735,9 @@ function DirNodeView({
                   onShowDiff={onShowDiff}
                   onContextMenu={onContextMenu}
                   onDirContextMenu={onDirContextMenu}
+                  onStage={onStage}
+                  onUnstage={onUnstage}
+                  onOpenFile={onOpenFile}
                 />
               )}
             </div>
@@ -666,6 +759,9 @@ function DirNodeView({
                 const mode = e.metaKey || e.ctrlKey ? "toggle" : "single";
                 onHighlightFile(key, mode);
               }}
+              onStage={() => onStage(file.path)}
+              onUnstage={() => onUnstage(file.path)}
+              onOpenFile={() => onOpenFile(file.path)}
             />
           </div>
         );
@@ -917,6 +1013,74 @@ function ChevronIcon() {
         stroke="currentColor"
         strokeLinecap="round"
       />
+    </svg>
+  );
+}
+
+function StageMiniIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M8 2v12M2 8h12" />
+    </svg>
+  );
+}
+
+function UnstageMiniIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M2 8h12" />
+    </svg>
+  );
+}
+
+function StageAllIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M8 1v14M1 8h14" />
+    </svg>
+  );
+}
+
+function UnstageAllIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M1 8h14" />
     </svg>
   );
 }

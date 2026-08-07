@@ -1,7 +1,126 @@
+/* ─── SCM-style layout ──────────────────────────────────────────── */
+.scm-app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.scm-scroll-container {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.scm-section {
+  border-bottom: 1px solid var(--border, #333);
+}
+
+.scm-section-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  opacity: 0.7;
+  user-select: none;
+  background: transparent;
+}
+
+.scm-section-header:hover {
+  background: var(--vscode-list-hoverBackground);
+}
+
+.scm-section-title {
+  flex: 1;
+}
+
+.scm-section-count {
+  font-weight: 400;
+  opacity: 0.8;
+  min-width: 20px;
+  text-align: center;
+}
+
+.scm-section-body {
+  /* No padding - the child components have their own */
+}
+
+/* Repo selector */
+.scm-repo-selector {
+  position: relative;
+  flex-shrink: 0;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border, #333);
+}
+
+.scm-repo-selector-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 4px 8px;
+  background: var(--input-bg, #3c3c3c);
+  color: var(--app-fg);
+  border: 1px solid var(--input-border, #454545);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.scm-repo-selector-btn:hover {
+  background: var(--vscode-list-hoverBackground);
+}
+
+.scm-repo-dropdown-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+}
+
+.scm-repo-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 8px;
+  right: 8px;
+  margin-top: 2px;
+  z-index: 100;
+  background: var(--vscode-menu-background, #1e1e1e);
+  border: 1px solid var(--vscode-menu-border, #454545);
+  border-radius: 4px;
+  padding: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.scm-repo-dropdown-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: var(--app-fg);
+  background: transparent;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.scm-repo-dropdown-item:hover {
+  background: var(--vscode-list-hoverBackground);
+}
+
+.scm-repo-dropdown-item.active {
+  background: var(--selected-bg, #04395e);
+  color: var(--button-fg, #fff);
+}
+
 .commit-app {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
   overflow: hidden;
   font-family: var(--vscode-font-family);
   font-size: var(--vscode-font-size);
@@ -159,19 +278,23 @@
 
 /* ─── File List ────────────────────────────────────────────────── */
 .commit-file-list {
-  flex: 1;
-  overflow-y: auto;
   overflow-x: hidden;
+}
+
+/* When inside scm-scroll-container, don't use flex */
+.scm-scroll-container .commit-file-list {
+  flex: none;
+  overflow: visible;
 }
 
 .commit-dir-row {
   display: flex;
   align-items: center;
-  padding: 3px 8px;
+  padding: 1px 8px;
   cursor: pointer;
   font-size: 12px;
   gap: 4px;
-  min-height: 26px;
+  min-height: 22px;
   user-select: none;
   opacity: 0.85;
 }
@@ -197,7 +320,7 @@
 .commit-group-header {
   display: flex;
   align-items: center;
-  padding: 4px 8px;
+  padding: 2px 8px;
   cursor: pointer;
   user-select: none;
   font-size: 11px;
@@ -249,11 +372,11 @@
 .commit-file-item {
   display: flex;
   align-items: center;
-  padding: 3px 8px 3px 28px;
+  padding: 1px 8px 1px 28px;
   cursor: pointer;
   font-size: 12px;
   gap: 4px;
-  min-height: 26px;
+  min-height: 22px;
   box-sizing: border-box;
 }
 
@@ -312,6 +435,89 @@
   padding: 0 4px;
   border-radius: 2px;
   margin-left: auto;
+}
+
+.commit-file-actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.1s;
+}
+
+.commit-file-item:hover .commit-file-actions,
+.commit-file-item.highlighted .commit-file-actions {
+  opacity: 1;
+  visibility: visible;
+}
+
+.commit-file-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--vscode-foreground, #ccc);
+  cursor: pointer;
+  opacity: 0.7;
+  transition:
+    opacity 0.1s,
+    background 0.1s;
+}
+
+.commit-file-action-btn:hover {
+  opacity: 1;
+  background: var(--vscode-toolbar-hoverBackground, rgba(128, 128, 128, 0.15));
+}
+
+.commit-file-action-btn:active {
+  opacity: 1;
+  background: var(--vscode-toolbar-activeBackground, rgba(128, 128, 128, 0.25));
+}
+
+/* Directory row hover actions */
+.commit-dir-row .commit-file-actions {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.1s;
+}
+.commit-dir-row:hover .commit-file-actions,
+.commit-dir-row.highlighted .commit-file-actions {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Group header action buttons */
+.commit-group-actions {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.1s;
+}
+
+.commit-group-header:hover .commit-group-actions {
+  opacity: 1;
+  visibility: visible;
+}
+
+.commit-group-actions .commit-file-action-btn {
+  width: 20px;
+  height: 20px;
+}
+
+/* When actions are visible, status badge moves to the far right */
+.commit-file-item:hover .commit-file-status,
+.commit-file-item.highlighted .commit-file-status {
+  margin-left: 0;
 }
 
 /* ─── Context Menu ─────────────────────────────────────────────── */
@@ -494,10 +700,10 @@
 .shelf-item-row {
   display: flex;
   align-items: center;
-  padding: 6px 8px;
+  padding: 2px 8px;
   cursor: pointer;
   gap: 4px;
-  min-height: 28px;
+  min-height: 22px;
 }
 
 .shelf-item-row:hover {
@@ -521,7 +727,7 @@
 
 .shelf-item-title {
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 400;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -545,7 +751,8 @@
   padding: 2px 8px 2px 32px;
   gap: 4px;
   font-size: 12px;
-  min-height: 24px;
+  min-height: 22px;
+  cursor: pointer;
 }
 
 .shelf-file-row:hover {

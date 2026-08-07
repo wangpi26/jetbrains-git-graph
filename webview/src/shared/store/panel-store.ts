@@ -42,6 +42,10 @@ interface PanelStore {
   selectedBranches: string[];
   lastSelectedBranch: string | null;
   branchGroupByDirectory: boolean;
+  /** Discovered repos for repo selector */
+  repos: { name: string; path: string; isActive: boolean }[];
+  fetchRepos: () => Promise<void>;
+  switchRepo: (repoPath: string) => Promise<void>;
 
   filter: PanelFilter;
   /** Hashes to restore after clearing a filter */
@@ -217,6 +221,7 @@ export const usePanelStore = create<PanelStore>((set, get) => ({
   pendingSelectionFromFilter: [],
   collapsedSequenceIds: new Set(),
   collapsedIntermediates: new Map(),
+  repos: [],
 
   loading: false,
   hasMore: true,
@@ -481,6 +486,7 @@ export const usePanelStore = create<PanelStore>((set, get) => ({
         pendingSelectionFromFilter: [],
         collapsedSequenceIds: new Set(),
         collapsedIntermediates: new Map(),
+        repos: [],
       });
       get().fetchInitialData();
       return;
@@ -572,6 +578,29 @@ export const usePanelStore = create<PanelStore>((set, get) => ({
     });
   },
 
+  async fetchRepos() {
+    try {
+      const repos = (await bridge.request("getRepos")) as {
+        name: string;
+        path: string;
+        isActive: boolean;
+      }[];
+      set({ repos: repos ?? [] });
+    } catch {
+      // ignore
+    }
+  },
+
+  async switchRepo(repoPath: string) {
+    try {
+      await bridge.request("switchRepo", { repoPath });
+      // Wait for repoChanged event, but also refresh proactively
+      await get().fetchInitialData();
+    } catch {
+      // ignore
+    }
+  },
+
   toggleSequenceCollapse(sequenceId: string, intermediates: string[]) {
     const {
       commits,
@@ -649,5 +678,17 @@ bridge.onEvent((event, data) => {
   }
   if (event === "operationEnd") {
     usePanelStore.setState({ operationInProgress: false });
+  }
+  if (event === "reposDiscovered") {
+    void usePanelStore.getState().fetchRepos();
+  }
+  if (event === "repoChanged") {
+    void usePanelStore.getState().fetchRepos();
+  }
+  if (event === "navigateToCommit") {
+    const { hash } = data as { hash: string };
+    if (hash) {
+      void usePanelStore.getState().selectCommit(hash, "single", []);
+    }
   }
 });

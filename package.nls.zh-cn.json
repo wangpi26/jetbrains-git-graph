@@ -1,7 +1,7 @@
 {
-  "viewsContainers.activitybar.git-brains-commit.title": "提交",
+  "viewsContainers.activitybar.git-brains-commit.title": "源代码管理",
   "views.git-brains.gitLog.name": "Git 日志",
-  "views.git-brains.commitPanel.name": "提交",
+  "views.git-brains.commitPanel.name": "源代码管理",
   "command.git-brains.refreshLog.title": "刷新 Git 日志",
   "command.git-brains.openMergeEditor.title": "打开合并编辑器",
   "command.git-brains.openConflicts.title": "冲突",
@@ -15,5 +15,6 @@
   "command.git-brains.commitPanel.shelve.title": "搁置更改",
   "command.git-brains.commitPanel.unshelve.title": "取消搁置更改",
   "command.git-brains.openPushPanel.title": "推送...",
-  "command.git-brains.editSource.title": "(JetGit) 编辑源文件"
+  "command.git-brains.editSource.title": "(JetGit) 编辑源文件",
+  "command.git-brains.showBlameCommit.title": "查看 Blame 提交"
 }

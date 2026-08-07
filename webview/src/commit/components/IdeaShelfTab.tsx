@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { bridge } from "../../shared/bridge";
 import { t } from "../../shared/i18n";
 import {
   type IdeaShelfEntry,
@@ -187,6 +188,7 @@ function IdeaShelfItem({
             <IdeaShelfFileRow
               key={filePath}
               filePath={filePath}
+              shelfName={entry.name}
               onContextMenu={(e) => onFileContextMenu(e, filePath, entry.name)}
             />
           ))}
@@ -199,9 +201,11 @@ function IdeaShelfItem({
 function IdeaShelfFileRow({
   filePath,
   onContextMenu,
+  shelfName,
 }: {
   filePath: string;
   onContextMenu: (e: React.MouseEvent) => void;
+  shelfName: string;
 }) {
   const parts = filePath.split("/");
   const fileName = parts.pop() || filePath;
@@ -211,6 +215,9 @@ function IdeaShelfFileRow({
   return (
     <div
       className="shelf-file-row"
+      onDoubleClick={() => {
+        bridge.request("showIdeaShelfFileDiff", { shelfName, filePath });
+      }}
       onContextMenu={(e) => {
         e.preventDefault();
         e.stopPropagation();

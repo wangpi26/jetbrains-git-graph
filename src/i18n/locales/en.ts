@@ -67,4 +67,8 @@ export const en: Record<string, string> = {
   "extension.shelvedDiff": "{filePath} (Shelved: {stashId})",
   "extension.shelvedInShelf": "{fileName} (Shelved in {shelfName})",
   "extension.compareBranches": "{currentBranch} ↔ {branchName}",
+  "extension.repoNotFound": "Repo not found",
+  "extension.gitServiceNotFound": "Git service not found",
+  "blame.viewCommit": "View Commit",
+  "blame.viewInGitLog": "View in Git Log",
 };

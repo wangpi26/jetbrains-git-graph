@@ -1,5 +1,24 @@
 # Changelog / 更新日志
 
+## [0.5.0] - 2025-08-07
+
+### Added / 新增
+- **Full Chinese localization** — complete zh-CN translation for all UI text including commit panel tabs, file group labels, branch tree, context menus, dialog titles, toolbar filters, column headers, commit buttons, shelf hints, and VS Code command titles / 全面中文汉化，覆盖所有界面文本
+- **Nested git repo auto-discovery** — automatically scans workspace subdirectories for nested git repos (up to 2 levels deep), with a repo selector dropdown in the toolbar when multiple repos are found / 自动发现工作区子目录中的嵌套 Git 仓库，多仓库时显示仓库选择器
+- **Hover action buttons on file items** — stage/unstage and open file buttons appear on hover/selection, matching VS Code SCM style / 文件项悬停显示暂存/取消暂存和打开文件按钮，仿 VS Code 源代码管理风格
+- **Hover action buttons on directory rows** — stage all files in a directory with one click / 目录行悬停显示一键暂存按钮
+- **VS Code extension localization** — `package.nls.json` / `package.nls.zh-cn.json` for localized view names and command titles / 通过 NLS 文件实现 VS Code 扩展层面本地化
+
+### Changed / 变更
+- **File grouping simplified** — merged "Unversioned Files" into "Changes" group, now only two groups: Staged and Changes / 简化文件分组，合并"未版本控制的文件"到"更改"中
+- **Staged group moved above Changes** — matching IntelliJ IDEA layout / 已暂存分组移到更改上方，与 IDEA 布局一致
+- **Commit button localization** — "Commit" → "提交", "Commit and Push..." → "提交并推送..." / 提交按钮汉化
+- **Repo selector** — root repo shows folder name instead of "(root)" / 仓库选择器根项目显示文件夹名而非 "(root)"
+
+### Fixed / 修复
+- **File path resolution for nested repos** — `openFile`, `rollback`, `shelf`, `patch` operations now use `gitService.cwd` instead of `workspaceRoot` / 修复子仓库文件路径解析错误
+- **getWorkingTreeChanges scope** — now only returns changes from the active repo, not all repos / 修复提交面板聚合了所有仓库的文件
+
 ## [0.4.17] - 2026-06-20
 
 ### Added / 新增

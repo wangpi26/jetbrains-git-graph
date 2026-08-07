@@ -1,3 +1,5 @@
+import { useCallback } from "react";
+import { t } from "../../shared/i18n";
 import type { WorkingTreeFile } from "../../shared/store/commit-store";
 import { getCommitFileIcon } from "../utils/file-icon";
 
@@ -9,6 +11,9 @@ export interface FileItemProps {
   onContextMenu: (e: React.MouseEvent) => void;
   onShowDiff: () => void;
   onClick: (e: React.MouseEvent) => void;
+  onStage: () => void;
+  onUnstage: () => void;
+  onOpenFile: () => void;
 }
 
 export function FileItem({
@@ -19,6 +24,9 @@ export function FileItem({
   onContextMenu,
   onShowDiff,
   onClick,
+  onStage,
+  onUnstage,
+  onOpenFile,
 }: FileItemProps) {
   const parts = file.path.split("/");
   const fileName = parts.pop() || parts.pop() || file.path;
@@ -27,6 +35,28 @@ export function FileItem({
   const statusLabel = getStatusLabel(file.status);
   const statusColor = getStatusColor(file.status);
   const FileIcon = getCommitFileIcon(file.path);
+
+  const handleStageClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (file.staged) {
+        onUnstage();
+      } else {
+        onStage();
+      }
+    },
+    [file.staged, onStage, onUnstage],
+  );
+
+  const handleOpenFileClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onOpenFile();
+    },
+    [onOpenFile],
+  );
 
   return (
     <div
@@ -60,10 +90,84 @@ export function FileItem({
           {dirPath}
         </span>
       )}
+      <span className="commit-file-actions">
+        <button
+          type="button"
+          className="commit-file-action-btn"
+          title={t("fileItem.openFile")}
+          onClick={handleOpenFileClick}
+        >
+          <OpenFileIcon />
+        </button>
+        <button
+          type="button"
+          className="commit-file-action-btn"
+          title={
+            file.staged
+              ? t("fileItem.unstageChanges")
+              : t("fileItem.stageChanges")
+          }
+          onClick={handleStageClick}
+        >
+          {file.staged ? <UnstageIcon /> : <StageIcon />}
+        </button>
+      </span>
       <span className="commit-file-status" style={{ color: statusColor }}>
         {statusLabel}
       </span>
     </div>
+  );
+}
+
+function StageIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M8 2v12M2 8h12" />
+    </svg>
+  );
+}
+
+function UnstageIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M2 8h12" />
+    </svg>
+  );
+}
+
+function OpenFileIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M4 3h5l2 2h3v8H4z" />
+      <path d="M9 3v2h2" />
+    </svg>
   );
 }
 

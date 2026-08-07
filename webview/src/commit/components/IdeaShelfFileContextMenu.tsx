@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { bridge } from "../../shared/bridge";
 import { t } from "../../shared/i18n";
+import { useCommitStore } from "../../shared/store/commit-store";
 
 interface IdeaShelfFileContextMenuProps {
   x: number;
@@ -18,6 +19,7 @@ export function IdeaShelfFileContextMenu({
   onClose,
 }: IdeaShelfFileContextMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
+  const deleteIdeaShelf = useCommitStore((s) => s.deleteIdeaShelf);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -58,6 +60,11 @@ export function IdeaShelfFileContextMenu({
     onClose();
   }, [filePath, onClose]);
 
+  const handleDeleteShelf = useCallback(() => {
+    deleteIdeaShelf(shelfName);
+    onClose();
+  }, [shelfName, deleteIdeaShelf, onClose]);
+
   return (
     <div className="commit-context-menu" ref={menuRef} style={style}>
       <button
@@ -88,6 +95,17 @@ export function IdeaShelfFileContextMenu({
       >
         <CopyIcon />
         <span>{t("shelf.copyPath")}</span>
+      </button>
+
+      <div className="commit-context-menu-separator" />
+
+      <button
+        type="button"
+        className="commit-context-menu-item commit-context-menu-danger"
+        onClick={handleDeleteShelf}
+      >
+        <DeleteIcon />
+        <span>{t("shelf.delete")}</span>
       </button>
     </div>
   );
@@ -161,6 +179,24 @@ function CopyIcon() {
         stroke="currentColor"
         strokeLinecap="round"
         strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+function DeleteIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      className="commit-context-menu-icon"
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M7 2H9C9.55228 2 10 2.44772 10 3H6C6 2.44772 6.44772 2 7 2ZM5 3C5 1.89543 5.89543 1 7 1H9C10.1046 1 11 1.89543 11 3H13C13.5523 3 14 3.44772 14 4V5V6H13V13C13 14.1046 12.1046 15 11 15H5C3.89543 15 3 14.1046 3 13V6H2V5V4C2 3.44772 2.44772 3 3 3H5ZM11 4H10H6H5H3V5H4H12H13V4H11ZM4 6H12V13C12 13.5523 11.5523 14 11 14H5C4.44772 14 4 13.5523 4 13V6ZM6.5 7C6.22386 7 6 7.22386 6 7.5V11.5C6 11.7761 6.22386 12 6.5 12C6.77614 12 7 11.7761 7 11.5V7.5C7 7.22386 6.77614 7 6.5 7ZM9 7.5C9 7.22386 9.22386 7 9.5 7C9.77614 7 10 7.22386 10 7.5V11.5C10 11.7761 9.77614 12 9.5 12C9.22386 12 9 11.7761 9 11.5V7.5Z"
+        fill="currentColor"
       />
     </svg>
   );

@@ -54,7 +54,6 @@ interface CommitStore {
   loading: boolean;
   expandedGroups: Set<string>;
   groupByDirectory: boolean;
-  showUnversioned: boolean;
   /** Collapsed directory paths in tree view */
   collapsedDirs: Set<string>;
 
@@ -89,8 +88,12 @@ interface CommitStore {
   expandAllDirs: () => void;
   collapseAllDirs: (allDirPaths: string[]) => void;
   toggleGroupByDirectory: () => void;
-  toggleShowUnversioned: () => void;
   refresh: () => Promise<void>;
+  // Repos
+  repos: { name: string; path: string; isActive: boolean }[];
+  activeRepoName: string;
+  fetchRepos: () => Promise<void>;
+  switchRepo: (repoPath: string) => Promise<void>;
 }
 
 export const useCommitStore = create<CommitStore>((set, get) => ({
@@ -102,10 +105,11 @@ export const useCommitStore = create<CommitStore>((set, get) => ({
   shelves: [],
   ideaShelves: [],
   activeTab: "commit",
+  repos: [],
+  activeRepoName: "",
   loading: false,
-  expandedGroups: new Set(["changes", "unversioned", "staged"]),
+  expandedGroups: new Set(["changes", "staged"]),
   groupByDirectory: true,
-  showUnversioned: true,
   collapsedDirs: new Set<string>(),
 
   async fetchChanges() {
@@ -464,10 +468,6 @@ export const useCommitStore = create<CommitStore>((set, get) => ({
     }
   },
 
-  toggleShowUnversioned() {
-    set({ showUnversioned: !get().showUnversioned });
-  },
-
   async refresh() {
     await Promise.all([
       get().fetchChanges(),
@@ -475,11 +475,43 @@ export const useCommitStore = create<CommitStore>((set, get) => ({
       get().fetchIdeaShelves(),
     ]);
   },
+
+  async fetchRepos() {
+    try {
+      const repos = (await bridge.request("getRepos")) as {
+        name: string;
+        path: string;
+        isActive: boolean;
+      }[];
+      const active = repos?.find((r) => r.isActive);
+      set({ repos: repos ?? [], activeRepoName: active?.name ?? "" });
+    } catch {
+      // ignore
+    }
+  },
+
+  async switchRepo(repoPath: string) {
+    try {
+      await bridge.request("switchRepo", { repoPath });
+      await get().fetchChanges();
+      await get().fetchShelves();
+      await get().fetchIdeaShelves();
+      await get().fetchRepos();
+    } catch {
+      // ignore
+    }
+  },
 }));
 
 // Listen for commit state changes
 bridge.onEvent((event) => {
   if (event === "commitStateChanged" || event === "gitStateChanged") {
+    useCommitStore.getState().fetchChanges();
+    useCommitStore.getState().fetchIdeaShelves();
+    useCommitStore.getState().fetchShelves();
+  }
+  if (event === "reposDiscovered" || event === "repoChanged") {
+    useCommitStore.getState().fetchRepos();
     useCommitStore.getState().fetchChanges();
     useCommitStore.getState().fetchIdeaShelves();
     useCommitStore.getState().fetchShelves();

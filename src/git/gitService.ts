@@ -48,7 +48,7 @@ const LOG_FORMAT = [
 export class GitService {
   readonly cache = new GitCache();
 
-  constructor(private readonly cwd: string) {}
+  constructor(readonly cwd: string) {}
 
   private async execGit(
     args: string[],
@@ -73,6 +73,11 @@ export class GitService {
     } catch {
       return false;
     }
+  }
+
+  /** Run an arbitrary git command and return stdout (for internal extension use) */
+  async rawGit(args: string[]): Promise<string> {
+    return this.execGit(args);
   }
 
   async getLog(options: LogOptions = {}): Promise<CommitNode[]> {

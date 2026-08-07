@@ -1,7 +1,7 @@
 {
-  "viewsContainers.activitybar.git-brains-commit.title": "Commit",
+  "viewsContainers.activitybar.git-brains-commit.title": "Source Control",
   "views.git-brains.gitLog.name": "Git Log",
-  "views.git-brains.commitPanel.name": "Commit",
+  "views.git-brains.commitPanel.name": "Source Control",
   "command.git-brains.refreshLog.title": "Refresh Git Log",
   "command.git-brains.openMergeEditor.title": "Open Merge Editor",
   "command.git-brains.openConflicts.title": "Conflicts",
@@ -15,5 +15,6 @@
   "command.git-brains.commitPanel.shelve.title": "Shelve Changes",
   "command.git-brains.commitPanel.unshelve.title": "Unshelve Changes",
   "command.git-brains.openPushPanel.title": "Push...",
-  "command.git-brains.editSource.title": "(JetGit) Edit Source"
+  "command.git-brains.editSource.title": "(JetGit) Edit Source",
+  "command.git-brains.showBlameCommit.title": "Show Blame Commit"
 }

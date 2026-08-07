@@ -111,7 +111,9 @@ export type CommandType =
   | "closePushPanel"
   | "openRollbackPanel"
   | "executeRollback"
-  | "closeRollbackPanel";
+  | "closeRollbackPanel"
+  | "getRepos"
+  | "switchRepo";
 
 export interface Bridge {
   request(

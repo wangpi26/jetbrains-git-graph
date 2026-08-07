@@ -100,7 +100,7 @@ export const zhCN: Record<string, string> = {
   "commitToolbar.groupBy": "分组方式",
   "commitToolbar.directory": "目录",
   "commitToolbar.show": "显示",
-  "commitToolbar.unversionedFiles": "未版本控制的文件",
+  "commitToolbar.unversionedFiles": "更改",
 
   // Commit panel - CommitTab
   "commitTab.noChanges": "未检测到更改",
@@ -190,8 +190,8 @@ export const zhCN: Record<string, string> = {
   // Commit panel - CommitTab group labels
   "commitTab.mergeConflicts": "合并冲突",
   "commitTab.changes": "更改",
-  "commitTab.staged": "已暂存",
-  "commitTab.unversionedFilesLabel": "未版本控制的文件",
+  "commitTab.staged": "暂存的更改",
+  "commitTab.unversionedFilesLabel": "更改",
   "commitTab.shelvedChanges": "搁置的更改",
   "commitTab.deleteDir": '删除 "{dirName}"...',
 
@@ -274,6 +274,14 @@ export const zhCN: Record<string, string> = {
   "commitTab.commit": "提交",
   "commitTab.shelf": "搁置",
   "commitTab.stash": "贮藏",
+  // File item action buttons
+  "fileItem.stageChanges": "暂存更改",
+  "fileItem.unstageChanges": "取消暂存",
+  "fileItem.openFile": "打开文件",
+
+  // Repo selector
+  "panel.toolbar.selectRepo": "选择仓库",
+
   // Commit buttons
   "commitButton.commit": "提交",
   "commitButton.commitAndPush": "提交并推送...",

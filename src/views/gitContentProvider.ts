@@ -20,7 +20,7 @@ export class GitContentProvider
   >();
   readonly onDidChangeFile = this._onDidChangeFile.event;
 
-  constructor(private readonly gitService: GitService) {}
+  constructor(private readonly gitServiceGetter: () => GitService | null) {}
 
   setExternalContentMap(map: Map<string, string>): void {
     this.externalContent = map;
@@ -42,7 +42,28 @@ export class GitContentProvider
     if (!ref || !filePath) {
       return "";
     }
-    return this.gitService.getFileContent(ref, filePath);
+    // Wait for git service to be available (handles async repo discovery on reload)
+    const svc = await this.waitForGitService();
+    if (!svc) {
+      throw new Error("Git service not available");
+    }
+    return svc.getFileContent(ref, filePath);
+  }
+
+  private async waitForGitService(
+    timeoutMs = 5000,
+  ): Promise<GitService | null> {
+    const svc = this.gitServiceGetter();
+    if (svc) return svc;
+    // Retry with backoff for up to 5 seconds
+    const start = Date.now();
+    const interval = 100;
+    while (Date.now() - start < timeoutMs) {
+      await new Promise((resolve) => setTimeout(resolve, interval));
+      const s = this.gitServiceGetter();
+      if (s) return s;
+    }
+    return null;
   }
 
   // ─── FileSystemProvider (for binary files) ────────────────────────
@@ -72,7 +93,9 @@ export class GitContentProvider
     if (!ref || !filePath) {
       return new Uint8Array(0);
     }
-    const buffer = await this.gitService.getFileContentBuffer(ref, filePath);
+    const svc = await this.waitForGitService();
+    if (!svc) return new Uint8Array(0);
+    const buffer = await svc.getFileContentBuffer(ref, filePath);
     return new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
   }
 

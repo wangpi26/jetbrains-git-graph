@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { bridge } from "../../shared/bridge";
 import { t } from "../../shared/i18n";
 import {
   type ShelveEntry,
@@ -155,6 +156,7 @@ function ShelfItem({
             <ShelfFileRow
               key={filePath}
               filePath={filePath}
+              stashId={entry.id}
               onContextMenu={(e) => onFileContextMenu(e, filePath, entry.id)}
             />
           ))}
@@ -167,9 +169,11 @@ function ShelfItem({
 function ShelfFileRow({
   filePath,
   onContextMenu,
+  stashId,
 }: {
   filePath: string;
   onContextMenu: (e: React.MouseEvent) => void;
+  stashId: string;
 }) {
   const parts = filePath.split("/");
   const fileName = parts.pop() || filePath;
@@ -179,6 +183,9 @@ function ShelfFileRow({
   return (
     <div
       className="shelf-file-row"
+      onDoubleClick={() => {
+        bridge.request("showShelfFileDiff", { stashId, filePath });
+      }}
       onContextMenu={(e) => {
         e.preventDefault();
         e.stopPropagation();
